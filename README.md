@@ -1,4 +1,7 @@
 tt2013
 ======
 
-Repository für die Stuttgarter Test-Tage 2013 am 21. &amp; 22. März 2013
+Repository f&uml;r die Stuttgarter Test-Tage 2013 am 21. &amp; 22. M&auml;rz 2013.
+Der CfP l&auml;t noch bis 18. Januar 2013.
+
+Weitere Infos unter http://www.jugs.org/tt2013/cfp.html
