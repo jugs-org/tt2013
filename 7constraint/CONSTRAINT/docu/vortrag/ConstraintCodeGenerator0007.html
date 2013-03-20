@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Expression-Sicht vs. Mengen-Sicht</h1></u>
+<b>
+<pre>
+<u><h2>Mengen-Sicht</h2></u>
+Abzählen möglich
+
+Realm:      (<font color="blue">Zentrale</font> and <font color="blue">Schreib_Berechtigung</font> and <font color="blue">Lese_Berechtigung</font>)
+Constraint: (<font color="blue">Zentrale</font> and <font color="blue">Schreib_Berechtigung</font>)
+
+Aufrufer-Seite (Realm)             aufgerufene Seite (Constraint)
+
+Zentrale | Schreib_B. | Lese_B.    Zentrale | Schreib_B. | Lese_B. | erlaubt
+---------+------------+---------   ---------+------------+---------+---------
+    nein |       nein |   nein         nein |       nein |   nein  |    nein
+    nein |       nein |     ja         nein |       nein |     ja  |    nein
+    nein |         ja |   nein         nein |         ja |   nein  |    nein
+    nein |         ja |     ja         nein |         ja |     ja  |    nein
+      ja |       nein |   nein           ja |       nein |   nein  |    nein
+      ja |       nein |     ja           ja |       nein |     ja  |    nein
+      ja |         ja |   nein     <font color="blue">      ja |         ja |   nein  |      ja
+      ja |         ja |     ja           ja |         ja |     ja  |      ja</font>
+                                                          ----+----
+muss Sub-Set sein                  muss Super-Set sein        |
+(Unter-Menge)                      (Ober-Menge)               +- ja oder nein
+inklusive                          inklusive                     erlaubt (egal)
+
+
+jeder weiterer boolean-Parameter verdoppelt den Werte-Raum (Kardinalität)
+Closed world assumption (was ich nicht weiss, ist egal)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0008.html">weiter</A>
+</BODY>
+</HTML>

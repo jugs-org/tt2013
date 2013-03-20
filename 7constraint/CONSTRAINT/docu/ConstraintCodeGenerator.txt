@@ -1,0 +1,1277 @@
+Constraint Code Generator für Java
+==================================
+
+Titel:
+
+Aber sicher doch!
+
+vielleicht auch
+
+Der Typ ist sicher!
+
+Abstrakt
+--------
+
+Moderne Programmiersprachen wie Haskell oder Scala
+beeindrucken mit hochentwickelten Typ-Systemen und
+versprechen die Vermeidung von Fehlern bereits zur
+Kompilierzeit.
+
+Mit einem Code-Generator ist manches davon auch mit dem
+(guten) alten Java möglich.
+
+
+Design by Constract
+-------------------
+
+Zurückgegehend auf die Ideen der Programmiersprache Eiffel
+von Bertrand Meyer gibt es verschiedene Frameworks, welche
+die Einhaltung von Contracten in Java-Prgrammen absichern.
+
+siehe Links.
+
+Man kann dies auch einfach selbst machen:
+
+  public void(Sring str){
+    if (str==null){
+      throw new IllegalArgumentException("str is null);
+    }
+    ...weiterer Code...
+  }
+
+Ein Problem dieser Lösungen ist, dass die Contracts nur zur
+Laufzeit geprüft werden. Nur durch einen ergänzenden Test
+können die Contracts zur Wirkung gebracht werden.
+
+Ausserdem weiss der Compiler nichts von den Contracten und
+kann nicht prüfen, ob diese beim Aufruf eingehalten werden.
+
+
+Java-Compiler
+-------------
+
+Der Java-Compiler bietet mit seinem Typ-System der
+primitiven Typen, Java-Klassen und Generics(Typ-Parameter)
+einiges an Sicherheit; die Ausdrucksmöglichkeiten sind aber
+begrenzt und der Aufwand, die fachlichen Probleme auf
+Vererbung und Generics abzubilden ist recht hoch.
+
+Manches, wie expliziter Ausschluss oder Werte-Bereiche,
+lässt sich einfach nicht ausdrücken.
+
+Aber der Java-Compiler bietet mit seiner eingebauten
+Datenfluss-Analyse eine wichtige Infrastruktur, die wir für
+statische Code-Analysen nutzen können.
+
+  final int a = 0;
+  ...irgendwelcher Code, aber alles in einer Methode...
+  x = a; // a ist ein int
+
+
+Java-Enums (leider nicht verwendbar)
+------------------------------------
+
+Stellen wir uns vor, es gäbe ein Enum AmpelFarbe mit den
+Werten ROT, GELB und GRUEN.
+
+Die Methode fahre() erlaubt aber nur GRUEN und GELB
+ausnahmsweise, wenn es schon zu spät zum Bremsen ist.
+
+  void fahre(AmpelFarbe ampelFarbe){
+    ...
+  }
+
+Weil alle Ampelfarben-Enum-Ausprägungen die gleiche Klasse
+haben, kann man das GRUEN- oder eventuell-GELB-Constraint
+damit nicht ausdrücken.
+
+Schade, Enums helfen uns hier nicht weiter.
+
+
+Java-Interfaces (leider auch nicht geeignet)
+--------------------------------------------
+
+Weil es mit den Java-Enums nicht geklappt hat, versuchen wir
+es mal mit Interfaces:
+
+  interface AmpelFarbe{}
+
+  interface ROT extends AmpelFarbe{}
+
+  interface GELB extends AmpelFarbe{}
+
+  interface GRUEN extends AmpelFarbe{}
+
+Unsere Methode fahre schreiben wir so:
+
+  void fahre(GRUEN gruen){
+    ...
+  }
+
+Leider können wir nicht verhindern, dass die Klasse, welche
+GRUEN implementiert und der fahre()-Methode als Parameter
+übergeben wird, ausserdem noch ROT implementiert. Die
+Zusatzbedingung an GELB können wir dem Java-Compiler so auch
+nicht mitteilen.
+
+
+Expressions zur Abbildung von fachlichen Problemen
+--------------------------------------------------
+
+Ich war einmal in einem Projekt, in welchem der
+unterschiedliche Preis einer Leistung je nach Tag und Uhrzeit
+abgebildet werde musste.
+
+Nehmen wir mal Strom als Beispiel, Nachtstrom ist billiger
+und für Firmen könnte auch der Strom an Sonn- und Feiertagen
+und in bestimmten Uhrzeit-Intervallen günstiger sein.
+
+Um dies abzubilden, könnte man eine Datenbank-Tabelle mit
+einer Wochentags-Spalte, einer von- und bis-Uhrzeit-Spalte
+sowie einer Prozent-Spalte einrichten.
+
+Aber dann kann man gesetzliche Feiertage noch nicht abbilden.
+
+Das Schema wird immer komplizierter.
+
+Falls man aber die Tarif-Intervalle über Expressions, also
+Ausdrücke mit UND-, ODER-, NOT- und Kleiner- sowie
+Größer-Als-Operanden formuliert, kann man eigentlich alles
+abbilden, wenn die entsprechenden Funktionen, zum Beispiel
+für gesetzliche Feiertage, zur Verfügung stehen.
+
+Dies entspricht auch der Churchschen These.
+
+
+Constraint-Expressions
+----------------------
+
+Entsprechend den vorherigen Überlegungen werden die
+Constraints dieses Code-Generators als boolsche
+Expressions definiert, welche aus Prädikaten
+bestehen.
+
+
+Prädikate
+---------
+
+Der hier vorgestellte Code-Generator beruht auf
+Boolean-Expressions, welche sogenannte Prädikate
+verknüpfen.
+
+Ein Prädikat ist eine Instanz einer Klasse, welche eine
+Bestimmte abstrakte Klasse mit einer test-Methode
+implementiert.
+
+  abstract public class Predicate<CT>{
+    abstract public boolean test(final CT contextObj);
+  }
+
+
+Da die Prädikate in Java geschrieben sind, gibt es keine
+Spezial-Syntax in Kommentaren oder Annotationen.
+
+Alle sprachlichen Möglichkeiten von Java sind in den
+Prädikaten nutzbar, egal ob dies Null-Prüfungen,
+Werte-Vergleiche oder Mindest-Listen-Größen sind.
+
+Zur Verknüpfung stehen die Operanden AND, OR, NOT sowie XOR
+zur Verfügung, wobei XOR nicht auf zwei Operanden beschränkt
+ist, sondern beliebig viele Operanden mit XOR verknüpft
+werden dürfen.
+
+
+Kontext-Objekt
+--------------
+
+Die test-Methode der Prädikate bekommt einen über Generics
+festgelegten Parameter übergeben, welcher die zu prüfenden
+Werte/Objekte enthält.
+
+Dieses Kontext-Objekt kann eine primitive Klasse wie Integer
+oder String sein, aber auch komplexes fachliches Objekt sind
+bzw. als Member mitführen.
+
+Falls ein Prädikat mehrere verknüpfte Objekte/Werte prüfen
+soll, müssen diese in diesem einen Kontext-Objekt verpackt
+werden, die Verwendung von Prädikaten mit mehreren
+Parametern ist zur Zeit nicht vorgesehen.
+
+In einer Web-Applikation könnte das Kontext-Objekt auch der
+HTTP-Request sein, in welchem sich bestimmte Parameter
+befinden sollen und über den man auch an die Session des
+aktuellen Benutzers herankommt.
+
+
+Einfach Loslegen
+----------------
+
+Nachdem wir unsere Prädikate geschrieben haben können wir
+unseren konkreten Code-Generator von der Klasse
+AbstractConstraintCodeGenerator ableiten (Code bitte
+von der unter [Links] angegebenen Web-Site herunterladen,
+ist zu umfangreich zum Abdrucken).
+
+Noch ein paar Festlegungen wie Packages, Pfade und schon
+können wir unsere Prädikate mit den zur Verfügung stehenden
+Methoden AND, OR, NOT UND XOR verknüpfen.
+
+Diese Methoden arbeiten mit Java5-varags, benötigen also
+keine Array- oder Collection-Parameter um beliebig viele
+Prädikate zu verknüpfen.
+
+Pfade nochmal kontrollieren, den Parameter
+deleteUnusedConstraintJavaFiles erst mal auf false
+setzen, auch eine Datensicherung kann nicht schaden, und
+schon kann das Generieren los gehen.
+
+
+Constraint-Java-Klassen
+-----------------------
+
+Anhand der festgelegten Constraint-Expressions werden
+Java-Klassen generiert, deren Name die zugrundeliegende
+Expression abbildet:
+
+and( new A() , new B() )   wird zu   ANDB_A_B_ANDE
+
+wobei ANDB und ANDE für Beginn und Ende eines AND stehen.
+
+Ähnlich ist es beim OR und XOR.
+
+NOT_ ist der Prefix für negierte Prädikate oder
+Klammer-Abschnitte.
+
+Constraints, die nur aus einem einzigen Prädikat bestehen,
+bekommen den Postfix Constraint, zum Beipiel AConstraint,
+damit Constraint und Prädikat nicht den gleichen
+Java-Klassen-Namen haben, was zur Verwirrung beim Import
+führen könnte.
+
+Die generierten Constraint-Java-Klassen sind final und erben
+nur von Object (kann man schliesslich nicht vermeiden).
+
+Sonstige Vererbung oder die Nutzung der Java-Typ-Kompatibilität
+zur Oberklasse/Interface ist nicht vorgesehen.
+
+Jede generierte Constraint-Java-Klasse besitzt eine
+test-Methode zum Prüfen der Einhaltung des Constraints und
+einen Konstruktor, in welchem eine eventuelle
+Constraint-Verletzung mit einer IllegalArgumentException
+abgewehrt wird.
+
+
+Verwendung der generierten Klassen
+----------------------------------
+
+Der natürliche Lebensraum der generierten
+Java-Constraint-Klassen ist der Methoden-Parameter.
+
+  public void execute(
+      final ANDB_A_B_ANDE constraint ) {
+    ...
+  }
+
+Der Methodenkopf ist die Stelle, an welcher die aufrufende
+Seite das Constraint einhalten muss und sich die aufgerufene
+Seite auf das Constraint verlassen kann.
+
+Somit kann sich der Aufrufer darauf verlassen, dass
+die aufgerufene Methode mit dem Constraint klar kommt, also
+den gesamten erlaubten Wertebereich verarbeiten kann.
+
+Eine Methode gliedert nicht nur den Quellcode, sondern
+verkleinert auch den vom Compiler zu analysierenden
+Zustands-Raum.
+
+Das explizite Ausformulieren eines Constraints an einer
+Methodengrenze hilft dem Compiler oder anderen statischen
+Checkern beim Problem der Entscheidbarkeit.
+
+Wenn ein Constraint nicht explizit ausformuliert ist, sondern
+im Code versteckt ist, zum Beispiel ein int-Wert, welcher
+irgendwo als Array-Index verwendet wird und somit nicht
+negativ sein darf, so muss der Checker dieses verborgene
+Constraint finden und zusätzlich dessen Einhaltung
+absichern, ähnlich wie die Scala-Type-Inferenz den korrekten
+Typ von Variablen finden muss.
+
+Da meist die Methodendeklaration/-definition und der
+Methodenaufruf im Quellcode mehr oder weniger weit entfernt
+sind ist hier eine statische Prüfung eine willkommene Hilfe.
+
+
+Sicherer und unsicherer Bereich
+-------------------------------
+
+Schützen wir jetzt mal eine Methode mit einem int-Parameter
+dahingehend, dass der Wert des int-Parameters nicht negativ
+sein darf.
+
+  void arrayAccess(
+        final GreaterOrEqZeroConstraint constraint )
+  {
+    ...
+
+Die Einführung dieses Constraints wirkt viral, in jeder
+weiteren aufrufenden Schicht muss jetzt das Constraint statt
+des eventuell negativen int-Wertes übergeben werden.
+
+Doch irgendwo bekommen wir einen Wert, den wir nicht unter
+Kontrolle haben, vom Benutzer, der Datenbank, Netzwerk oder
+Dateisystem.
+
+Diesen Wert kann der Compiler nicht kontrollieren, er kennt
+ihn nicht.
+
+Zum Erwerben des Constraints müssen wir den Konstruktor der
+Constraint-Klasse aufrufen, eine Constraint-Instanz
+erzeugen.
+
+Der Konstruktor bekommt das Kontext-Objekt, zum Beispiel ein
+Integer übergeben.
+
+Nach dem erfolgreichen Aufruf des Konstruktors befinden wir
+uns im sicheren Bereich, falls der übergebene Wert ungültig
+ist, erhalten wir eine IllegalArgumentException.
+
+Vorher befinden wir uns im unsicheren Bereich.
+
+
+Null-Problem(o)
+---------------
+
+Wenn das Constraint in der Methoden-Signatur als Parameter
+aufgeführt wird, kann es einfach dadurch umgangen werden,
+dass man ein null übergibt.
+
+Dies muss durch einen Guard
+
+  void xxx(YConstraint constraint){
+    if (constraint==null){
+      throw new IllegalArgumentException("constraint is null);
+    }
+    ...weiterer Code...
+  }
+
+oder ein ergänzend eingesetztes Laufzeit-Constraint-System
+vermieden werden.
+
+Wenn das im Constraint enthaltene Kontext-Objekt im weiteren
+Programmverlauf verwendet wird, fällt die Übergabe eines
+null ebenfalls irgendwann im Test auf.
+
+
+Konvertierungs-Methoden zum allgemeineren Constraint
+----------------------------------------------------
+
+Oben formuliertes Constraint
+
+  and( new A() , new B() )
+
+ist kompatibel, also ohne Verletzung einer Bedingung umwandelbar,
+zu
+
+  new A()
+
+sowie
+
+  new B()
+
+Dies stellt der Code-Generator automtisch fest und erzeugt
+die entsprechenden Konvertierungsmethoden:
+
+  convertToAConstraint();
+
+sowie
+
+  convertToBConstraint();
+
+Die Voraussetzung für die Kompatibilität ist die Erfüllung
+der einfachen Implikation, in der Literatur meist als
+Doppelpfeil(fat arrow) dargestellt:
+
+(A and B) => A
+(A and B) => B
+
+Wie ich oben schon ausführte, eignet sich die
+Java-Typ-Kompatibilität über Vererbung nicht für unsere
+Zwecke, die Konvertierungs-Methoden sind die einzige
+Möglichkeit der Constraint-Kompatibilität.
+
+
+Spezialisierung von Constraints
+-------------------------------
+
+Haben wir in einer Fassade Methoden mit spezielleren
+Constraints, die wiederum Methoden mit allgemeineren
+Constraints aufrufen, reichen die oben beschriebenen
+Konvertierungs-Methoden aus.
+
+Es kann aber vorkommen, dass in einer Methode über eine
+if-else-Kaskade oder switch-case in Wertebereiche bzw.
+Rechte/Rollen des ursprüglichen Constraints/Wertes
+spezialisiert werden muss, weil die aufrufende Methode
+sozusagen mehrfach verwendet wurde.
+
+Dafür gibt es im Constraint-Code-Generator die
+SwitchDefinition, welche das Generieren einer
+nicht-statischen inneren abstrakten Klasse in der
+Constraint-Klasse auslöst.
+
+Die Benutzung einer abstrakten Klasse mit einer zu
+implementierenden Methode für jeden Zweig sichert ab, dass
+für keinen Zweig die Implementierung vergessen wird.
+Leider kann man mit Java-switch-case oder
+if-else-Kaskaden nicht über den Compiler aussschliessen,
+dass ein Zweig vergessen wird.
+
+Die generierte abstrakte innere Klasse wird mit
+
+  constraint.new XxxSwitch(){
+    ...zu implemtierende Methodenrümpfe...
+  }
+
+angelegt, in der Eclipse wird das erforderliche Gerüst
+automatisch erzeugt.
+
+Die boolschen Ausprägungen der einzelnen Zweige dürfen sich
+nicht überlappen (müssen disjoint sein), damit nicht ein
+zufällig ein vor einem anderen Zweig geprüfter Zweig
+gewinnt.
+
+Die spezialisierenden case-Methoden bekommen einen
+Constraint-Parameter, welcher durch die And-Verknüpfung des
+ursprünglichen Constraints(welches spezialisiert wird) und
+des Zweig-Constraints erzeugt wird.
+
+Dabei werden die definierten Includes und Excludes (siehe
+weiter unten) zur Vereinfachung des neuen spezialisierten
+Constraints benutzt.
+
+Falls nicht für jede boolschen Ausprägung des ursprünglichen
+Constraints ein gültiger Zweig exisitiert, wird eine zu
+implementierende(abstrakte) caseDefault-Methode erzeugt.
+
+Für die caseDefault-Methode wird kein Constraint-Parameter
+erzeugt.
+
+
+Das verfluchte if
+-----------------
+
+Nach den Konvertierungs-Methoden zum allgemeineren Constraint und
+den Switches zu spezielleren Constraints will ich mal kurz anhalten
+und zur Frage zurückkehren, was das alles eigentlich soll
+(hat sich der geneigte Leser sicher auch gerade gefragt).
+
+Keine Turing-vollständige Sprache kommt ohne if aus,
+aber für die statische Absicherung eines Programms
+gegen Fehler bringt uns das if grosse Probleme.
+
+Der Constraint-Code-Generator ist im Rahmen eines
+Anwendungsprogrammes entstanden, das ich hier kurz
+skizzieren will.
+
+Eventuell erkennt mancher Strukturen in seinem aktuellen
+Projekt wieder.
+
+Das erwähnte Anwendungsprogramm realisierte einen
+Business-Process mit verschiedenen Rollen, Aktivitäten und
+Status der fachlichen Entitäten.
+
+Früher (vor BPMN) hätte man so etwas Workflow genannt, was
+ich hier begrifflich von Navigation, also den Benutzer-Wegen
+durch eine App abgrenzen will.
+
+Meine Vorgänger hatten das Programm zum Laufen bekommen, was
+an sich schon eine beachtenswerte Leistung ist.
+
+Das ganze Programm war ein Wald von if-else-Kaskaden.
+
+Am Beginn steht die Ermittlung der Rolle des Benutzers und
+ergänzender Informationen, zum Beispiel die
+Abteilungs-Kennung.
+
+Dann bezieht sich die aktuelle Operation auf eine fachliche
+Entität, die entweder im Request enthalten ist, aus der
+Session oder der Datenbank beschafft wird.
+
+Die auszuführende Operation wird festgestellt (das kann auch
+einfach nur die Ausgabe auf dem Display des Benutzers sein).
+
+Es wird überprüft, ob für die Benutzer-Rolle und
+Zusatzinformationen(Abteilung) und die geladene fachliche
+Entität in ihrem aktuellen Status die angeforderte Operation
+erlaubt ist.
+
+Schliesslich wird die Operation ausgeführt und dem Benutzer
+das Ergebnis präsentiert.
+
+Wir sehen hier also mehrere if-else-Kaskaden bezogen auf Daten 
+des Benutzers, aktuelle fachliche Entität, Status der fachlichen
+Entität, auszuführende Operation.
+
+Diese if-else-Kaskaden sind überall im Code verstreut und
+100.000 Zeilen sind noch eine ziemlich kleine Applikation.
+
+Nun könnte man die if-else-Kaskaden irgendwie aus dem Code
+auslagern, Struts-Action-Mapping(es gibt Leute, die dies ein
+Verbrechen an der Informatik nennen), Datenbank, XML,
+Rules-Engine(nicht mein Thema), BPMN-Engine(vielleicht);
+aber immer noch sollem Fehler möglichst vor dem
+Produktivgang gefunden werden.
+
+Statische Sicherheit hatten meine Vorgänger leider nicht im Fokus.
+
+Was kann man nun machen, um die Sicherheit gegen Fehler zu
+verbessern (Es gibt leider Kollegen, die dies nicht für so
+wichtig halten, aber lassen wir das mal beiseite)?
+
+Ziel ist es, dass Programm in einer bestimmten Hinsicht
+fehlerfrei abzuliefern (jede Richtung wird man meiner
+Meinung nach nicht absichern können, schliesslich kann man
+in einem Programm so viele Fehler machen, wie es Bits gibt
+und dann kommen noch die Kombinationen hinzu).
+
+Eine bekannte Lösung sind Unit-Tests.
+
+Man muss also den Entscheidungskern (mit diesem Wort wäre
+ich beim Bullshit-Bingo schon super im Rennen) per
+Depency-Injection und Mocking von seiner Persistenzlösung
+(DAO) und von der Benutzerschnittstelle (HTML-JSP,
+HTTP-Request) lösen und so testbar machen.
+
+Plötzlich hat man aber viele Kabelenden in der Hand, die
+wiederum korrekt verbunden werden müssen (man merkt, ich war
+früher mal Elektriker).
+
+Man tauscht ein Problem gegen ein anderes ein.
+
+Sehen wir uns mal so einen if-else-Verteiler an:
+
+    if ( A && B )
+    {
+        doAandB();
+    }
+    else if ( A )
+    {
+        doA();
+    }
+    else if ( B )
+    {
+        doB();
+    }
+    else
+    {
+        throw new UnReachableCodeException();
+    }
+
+Im letzten else-Zweig werfe ich eine selbstdefinierte Exception,
+leider gibt es eine solche Exception nicht im JDK.
+
+Haben Sie es gemerkt, der Zweig für
+
+    if ( ! A && ! B )
+
+fehlt.
+
+Das Prüfen der Code-Abdeckung hilft uns nicht viel, einen
+vergessenen Zweig finden wir darüber nicht, wir finden nur
+ungeteste(unnötige) Zweige.
+
+Also muss für jede Parameter-Wert-Kombination ein Testfall
+generiert werden. JUnit bietet dafür keine Lösung an, in der
+Scala-Welt gibt es nach meinem Wissen Lösungen dafür.
+
+Eine andere Lösung ist die Nutzung von Polymorphie, jeder
+Zweig wird in einer Klasse abgebildet und die Klassen mit
+den entsprechenden Handler-Methoden zusammengesteckt, ich
+habe es ausprobiert; es ist was für Leute die Schmerzen
+lieben.
+
+Nehmen wir mal an, wir hätten einen Parser für unseren Code
+und könnten diesen bequem statisch analysieren.
+
+Im Code finden wir die if-else-Verteiler mit ihren
+Bedingungen und Bodys.
+
+    if ( Bedingung )
+    {
+        Body: viele Zeilen Code
+    }
+
+Nun kann es aber schwierig werden, die Bedingungen und
+die Zweig-Bodys automatisiert zu analysieren.
+
+Um es dem statischen Analysierer leichter zu machen, erhöhen
+wir die Semantik der Bodys:
+
+    if ( Bedingung )
+    {
+        doX();
+    }
+
+Wir erlauben auf diesem Aufruf-Level nur bestimmte Methoden,
+deren Semantik wir durch den Namen und die Parameter-Typen
+eindeutig machen.
+
+Eventuell reichern wir den Code mit Annotationen um
+semantische Informationen an(was für eine doppeltgemoppelte
+Formulierung).
+
+Nun bleiben noch die Bedingungen zu analysieren.
+
+
+    if ( isY() || isZ() )
+    {
+        doX();
+    }
+
+Wenn wir die Bedingungen auf boolsche Expressions aus
+semantisch eindeutigen Operanden(All-Quantor,
+Existenz-Quantor, Anzahl, Summe, Vergleich)
+reduzieren, ist es für den Analysierer bereits
+wesentlich einfacher festzustellen, ob für jeden
+fachlich zu unterscheidenden Fall ein if-Zweig
+exisitert und ob jeder implementierte if-Zweig
+benötigt wird.
+
+Ersetzt man nun die semantisch eindeutigen Operanden
+durch die Prädikate meines Code-Generators und die
+Analyse der boolsche Expressions durch die Definition
+der Constraint-Expressions des Code-Generators,
+so ergibt sich ein ähnliches Bild.
+
+Man kann also mit dem Constraint-Code-Generator jeden
+if-Zweig des Entscheidungskerns sicher implementieren, ohne
+diesen testbar machen zu müssen.
+
+Die nur durch einen Test oder zur Laufzeit auftretenden
+
+    UnReachableCodeException
+
+in den unerlaubten else-Zweigen verschwinden.
+
+
+Die virale Wirkung des Compilers
+--------------------------------
+
+Wenn man ein generiertes Constraint als Methoden-Parameter
+einsetzt, muss jede aufrufende Code-Stelle dieses Constraint
+korrekt übergeben.
+
+Nachdem man an den Aufrufstellen die Constraints statt
+ungeschützter Werte eingesetzt hat findet der Compiler
+weitere Aufrufstelen, die geändert werden müssen.
+
+Irgendwann kommt man auf der höchsten Ebene, dem
+Berechtigungskonzept, Workflow oder ähnlichem an.
+
+Dem Benutzer wird eine mögliche Aktion über eine
+Menüpunkt, einen Button, einen Link oder ein
+anderes GUI-Element angeboten.
+
+Wenn beim Rendern des GUI-Elements (aktiv/inaktiv)
+(vorhanden/nicht vorhanden) die test-Methode des
+zu beachtenden Constraints beachtet wurde, sollte
+dem Benutzer keine Aktion angeboten werden, die
+fehlschlagen kann.
+
+So könnte der Benutzer höchstens durch einen veralteten
+Bookmark oder eine bewusste Manipulation eine nicht
+erlaubte Aktion aufrufen, die App sollte sicher sein.
+
+Eine Ausnahme sind konkurrierende Änderungen oder
+einfach die Zeit (Einspruchsfrist abgelaufen), die
+verursachen, dass der Zustand auf dem Bildschirm des
+Benutzers vom internen Zustand der App abweicht.
+
+Hier kann man nichts machen, es kommt zu einer
+Fehlermeldung.
+
+
+Includes
+--------
+
+Nehmen wir einmal an, wir hätten eine fachliche Hierarchie
+aus Teamleiter und Bearbeiter und zwei Geschäftsbereiche
+Ladengeschäft und Online-Geschäft.
+
+Der Teamleiter-Ladengeschäft würde die wahrscheinlich
+ausserdem vorhandenen Prädikate EbeneTeamleiter und
+GeschaeftLaden ebenfalls erfüllen.
+
+Diese Konstellation kann man dem Code-Generator
+folgendermassen mitteilen:
+
+  public final class TeamleiterLaden
+  extends PrimitivPredicate<T>
+  {
+      /**
+       * Konstruktor.
+       */
+      public TeamleiterLaden() {
+          super(
+                  //includePredicateSet
+                  CollectionUtil.hashset(
+                          new EbeneTeamleiter() ,
+                          new GeschaeftLaden() ) ,
+                  //safeValueSet
+                  null );
+      }
+      ...
+  }
+
+Eigentlich ist das Prädikat TeamleiterLaden damit
+überspezifiziert und die includierten (oder sollte man
+besser sagen implizierten) Prädikate sind immer
+And-verknüpft.
+
+Die Includes sind nützlich, wenn solche überspezifizierten
+Prädikate aufgrund vorhandener Strukturen in Applikationen
+einfach praktisch sind(sparen Schreibaufwand).
+
+Die Abbildung einer Hierarchie, zum Beispiel TeamLeiter darf
+Vorgänge seiner untergeordneten Bearbeiter sehen, kann über
+die Includes nicht abgebildet werden.
+
+Dies muss explizit ausformuliert werden, weil das 'Sehen'
+eventuell erlaubt ist, aber das 'Weiterleiten' nicht, wenn
+der TeamLeiter in diesem Status/Workflowschritt (in BPMN die
+Schwimmbahn) nicht die entsprechende Berechtigung hat.
+
+Bei der Generierung der spezialisierten Constraint-Parameter
+der case-Methoden des AbstractSwitch werden die includierten
+Prädikate aus den Constraint-Expressions entfernt, wenn
+diese bei jeder gültigen boolschen Belegung von einem
+anderen includierendem Prädikat überdeckt werden.
+
+Das bedeutet, dass die spezialisierten
+Constraint-Expressions bei vorhandenen passenden Includes
+vereinfacht werden.
+
+Beim Durchlaufen aller boolschen Ausprägungen im
+BruteForceSolver werden die Includes beachtet, es ist nicht
+möglich, dass ein Prädikat erfüllt ist, aber ein direkt oder
+indirekt rekursiv includiertes Prädikat nicht erfüllt ist.
+
+
+Excludes
+--------
+
+Im Exclude-Objekt werden Gruppen (ExcludeGroup) von sich
+ausschliesesnden Prädikaten aufgeführt.
+
+Wenn sich die Rollen Teamleiter und Bearbeiter
+ausschliessen, kann dies im Exclude festgehalten werden, so
+muss man nicht 'Teamleiter und nicht-Bearbeiter' bzw
+'nicht-Teamleiter und Bearbeiter' formulieren, 'Teamleiter'
+oder(auschliessend-alternativ) 'Bearbeiter' ist ausreichend.
+
+Genauso wie die Includes sind die Excludes eine
+Schreibvereinfachung und werden auch bei den spezialisierten
+Constraint-Parametern der case-Methoden der AbstractSwitches
+zur Vereinfachung verwendet.
+
+Beim Durchlaufen aller boolschen Ausprägungen im
+BruteForceSolver werden die Excludes beachtet, es ist nicht
+möglich, dass zwei oder mehrere Prädikate erfüllt sind, die
+sich in der gleichen ExcludeGroup befinden.
+
+Dabei werden natürlich auch includierte Prädikate, die zu
+ExcludeGroups gehören, beachtet.
+
+Das Flag 'isClosedWorldAssumption' bestimmt, ob mindestens ein
+Prädikat der Exclude-Group innerhalb einer Constraint-Expression
+erfüllt sein muss.
+
+
+Range-Check
+-----------
+
+Manchmal knabbert man an einem einfach aussehenden Feature
+wochenlang rum und plötzlich bekommt man ein spektakuläres
+Feature geschenkt.
+
+So ging es mir mit den Includes/Excludes und dem Range-Check.
+
+Die Include-/Exclude-Vereinfachungen der
+Constraint-Parameter der case-Methoden der AbstractSwitches
+haben mich lange beschäftigt und ich war im Zweifel, ob sich
+der Aufwand lohnt.
+
+Eines Tages habe ich einem Kollegen meinen Code-Generator
+erläutert und zur Abgrenzung(dieses kann der Code-Generator
+nicht) folgende Anforderung formuliert:
+
+Gegeben sei eine Zahl größer-als minus 10 und kleiner-als
+plus 10.
+
+Für diese soll ein AbstractSwitch für die Bereiche
+kleiner-als 0, gleich 0 und größer-als 0 generiert werden.
+
+Constraint: x > -10 && x < 10
+
+  Switch:
+    Case  x   <  0
+    Case  x  ==  0
+    Case  x   >  0
+
+Nach dem Gespräch fiel mir auf, dass dies doch möglich ist.
+
+Drei Zutaten machen dieses Rezept schmackhaft:
+
+  -parametrisierbare Prädikate
+  -dynamisches Include
+  -dynamisches Exclude
+
+Den Effekt oben nennt man übrigens Emergenz.
+
+
+Parametrisierbare Prädikate
+---------------------------
+
+Bisher waren Prädikate einfach binär gültig oder nicht.
+
+Durch die Angabe eines Parameters kann ein Prädikat genauer
+spezifiziert werden und an mehreren Stellen in der
+Constraint-Definition unterschiedlich für
+Werte-/Bereichs-Prüfungen verwendet werden:
+
+  new IntGreater( -10 ) // x > -10
+  new IntLesser (  10 ) // x <  10
+
+Für die Generierung der test-Methode und des Konstruktors
+der Constraint-Java-Klassen muss eine Methode implementiert
+werden, welche ein Stück Java-Code zum Erzeugen des
+Prädikats zurückgibt.
+
+Diese Methode muss dafür sorgen, dass zum Beispiel
+String-Parameter der Prädikate passend für Java-Code encodet
+werden(umschliessende Apostrophe, innere Apostrophe encodet,
+Backslashes encodet).
+
+
+Dynamisches Include
+-------------------
+
+Die parametrisierbaren Prädikate müssen die Methode
+
+    public boolean isCompatibleTo(
+            final Predicate<CT> otherPredicateToCheck );
+
+implementieren.
+
+Durch diese Methode kann der Code-Generator dynamisch
+informiert werden, dass ein
+
+  new IntGreater( 0 ) // x  > 0
+
+ein
+
+  new IntGreater( -10 ) // x > -10
+
+includiert und zur Vereinfachung der Switch-Parameter und
+zur Bewertung der Gültigkeit einer boolschen Belegung einer
+Constraint-Expression mit herangezogen werden kann.
+
+
+Dynamisches Exclude
+-------------------
+
+Zur oben genannten Methode kommt für die parametrisierbaren
+Prädikate noch die zu implementierende Methode
+
+    public boolean isExcludeTo(
+            final Predicate<CT> otherPredicateToCheck );
+
+hinzu.
+
+Anhand dieser Methode merkt der Code-Generator, dass
+
+  and(
+    new IntLesser ( 0 ) , // x < 0
+    new IntGreater( 0 ) ) // x > 0
+
+nicht möglich ist.
+
+Alle anderen Gimmicks der nicht-dynamischen Excludes
+funktionieren natürlich auch.
+
+
+Safe-Member
+-----------
+
+Safe-Member dienen dazu, den Code-Generator und damit den
+Java-Compiler auch für Nebenprobleme der Constraint-Prüfung
+einzuspannen.
+
+Nehmen wir folgendes Szenario an:
+
+  and(
+    RolleBearbeiter ,
+    VorgangStatusInBearbeitung ,
+    AllOffenenPunktegeklaert )
+
+Der aktuelle Benutzer hat die Rolle Bearbeiter, der aktuell
+im Programm geladene Vorgang (fachlicher Begriff) ist im
+Status In-Bearbeitung und alle offenen Punkte wurden
+abgearbeitet/geklärt.
+
+Offensichtlich kann der Bearbeiter den Vorgang auf Erledigt
+bzw Geschlossen umschalten.
+
+Wenn der Workflow des Vorganges schön ordentlich als
+Zustandsautomat oder State-Pattern modelliert wurde, also
+jeder Status eine eigene Java-Klasse ist, muss nun im Programm
+der aktuelle Status aus dem Vorgangs-Objekt gelesen und zum
+Status In-Bearbeitung gecastet werden.
+
+Dies erfolgt im Anwendungscode durch einen
+Anwendungsprogrammierer und kann schief gehen:
+
+  final VorgangStatusInBearbeitung vorgangStatusInBearbeitung =
+    // kritischer Cast
+    (VorgangStatusInBearbeitung) vorgang.getStatus();
+
+  final VorgangStatusErledigt vorgangStatusErledigt =
+    vorgangStatusInBearbeitung.schliessen();
+
+  vorgang.setStatus(
+    vorgangStatusErledigt );
+
+  vorgang.save();
+
+Durch die Definition einer SafeMember am Prädikat
+VorgangStatusInBearbeitung kann man dem Code-Generator den
+Cast überlassen.
+
+Die SafeMember wird an einem Prädikat definiert und enthält
+den Java-Typ, den Member-Namen und ein Stück Java-Code zur
+Initialisierung der SafeMember.
+
+Wenn das entsprechende Prädikat bei jeder boolschen Belegung
+des Constraint erfüllt ist, wird die SafeMember in der
+Constraint-Java-Klasse als public final Member generiert:
+
+    final VorgangStatusInBearbeitung vorgangStatusInBearbeitung =
+      // den Cast hat der Code-Generator bereits erzeugt
+      constraint.vorgangStatusInBearbeitung;
+
+Falls irgendwann einmal das Constraint so geändert werden
+sollte, dass die SafeMember nicht mehr generiert wird, ist
+der Code nicht mehr kompilierbar.
+
+Ausserdem wird der Anwendungscode knapper und
+ausdrucksstärker.
+
+Falls die Status nicht unterschiedliche Java-Klassen sind,
+hilft wenigstens noch ein aussagekräftiger Member-Name beim
+Prüfen.
+
+Prinzipiell könnte man auch eine Safe-Get-Methode
+generieren, dies ist aber noch nicht im Code-Generator eingebaut.
+
+Vergleichbar sind die SafeMember eventuell mit einem Feature
+der Sprache Xtend, welche ein Teil des Eclipse-Xtext-Projekts ist.
+
+Dort kann in einer if-Bedingung eine instanceof-Afrage formuliert
+werden und im entsprechenden if-Zweig wird das angefragte Objekt
+unsichtbar zur Ziel-Klasse gecastet.
+
+Dieses Feature würde man sich auch in Java wünschen.
+Der Constraint-Code-Generator kan durch die Constraint-Expression
+dagegen kompliziertere Fragen bereits zur Compile-Zeit beantworten.
+
+
+Safe-Operations
+---------------
+
+SafeOperations bilden über eine Operation ein Constraint auf
+ein anderes ab.
+
+Hat man beispielsweise ein Constraint 'Zahl > 0' und addiert
+die vermerkte Zahl um 1, dann ist das Ergebnis ein
+Constraint 'Zahl > 1'.
+
+Es handelt sich um eine mathematische Abbildungsvorschrift,
+welche statt eines Wertes auf einen anderen Wert ein
+Constraint auf ein anderes Constraint abbildet.
+
+Im downloadbaren Zip befindet sich das Beispiel
+StrLenConstraintCodeGenerator, in welchem für einen
+constraint-gesicherten String eine sichere
+SubString-Operation generiert wird.
+
+Damit sollten IndexOutOfBoundsExceptions zur Vergangenheit
+gehören.
+
+Vorausetzung für eine sichere SubString-Operation ist die
+Mindestlänge des ursprünglichen Strings.
+
+Die Definitionsklasse der Safe-Operation muss die Gültigkeit
+der mit bestimmten Parametern bestückten Safe-Operation
+prüfen und dem Code-Generator über zu implementierende Methoden
+den in die Constraint-Klasse einzufügenden Java-Code übergeben.
+
+Es gibt zwei Arten von SafeOperations, einmal
+ValueSafeOperation, welche die Welt der aktuell definierten
+Constraints verlassen und irgendein Objekt zurückgeben und
+andererseits DestinationConstraintSafeOperation, welche wie
+oben ausgeführt ein Ziel-Constraint besitzen.
+
+Die DestinationConstraintSafeOperation sind wiederum in
+NewDestinationConstraintSafeOperation (erzeugt ein neues
+Ziel-Constraint) und
+TransformDestinationConstraintSafeOperation (transformiert
+das ursprüngliche Constraint) unterteilt.
+
+Die Definitionen der DestinationConstraintSafeOperation
+müssen noch das Ziel-Constraint als Prädikat an den
+Code-Generator übergeben.
+
+Im Substring-Beispiel ist das Ziel-Constraint genauso wie
+das ursprüngliche Constraint auf einen String bezogen.
+
+Für die eigentlich viel interessanteren Übergänge von einem
+Context-Objekt-Typ zum anderen (Umwandlung String in Double
+oder anderes fachspezifisches) gibt es die
+OtherContextTypeDestinationConstraintSafeOperation.
+
+Prinzipiell gehe ich davon aus, dass es in einem nicht mehr
+ganz winzigen Projekt, welches meinen Code-Generator
+verwendet, mehrere Arten von Generatoren mit jeweils
+unterschiedlichen Typen der Kontext-Objekte geben wird.
+
+Diese verschiedenenen Code-Generatoren werden in einer
+ConstraintCodeGeneratorSuite zusammengefasst und
+informieren sich gegenseitig über erforderliche
+Constraints.
+
+SafeOperations sind im Gegensatz zu den SafeMembern an den
+Constraints definiert.
+
+Dies ist sicher noch nicht der Weisheit letzter Schluß.
+
+Aber gerade im SubString-Beispiel wären
+
+  ( String.length() / 2 ) ^ 2
+
+SafeOperations möglich, die, wenn sie alle generiert werden
+würden, sicher die Grössengrenze für eine Java-Klasse von
+64 kByte sprengen würden.
+
+Sie verwenden natürlich nicht nur SubString-Operationen,
+sondern die für Ihr Projekt jeweils wichtigen höherwertigen
+fachlichen Operationen in sicherer Weise.
+
+
+Philosophisches (zu den Safe-Operations)
+----------------------------------------
+
+Die Methode transformPredicate in
+TransformDestinationConstraintSafeOperation ist sehr
+abhängig von anderen Prädikaten bzw Expressions.
+
+Eine Änderung in anderen Prädikaten bzw Expressions kann
+dazu führen, dass diese Methode falsch arbeitet und
+nachgezogen werden muss.
+
+Im Grunde wird darin fachliche Logik abgebildet, die ohne
+den Code-Generator in normalem Code angebildet worden wäre.
+
+Man könnte argumentieren, dass die generierten
+Constraint-Klassen mehrfach verwendet werden können und dies
+auf normale Logik (ohne Code-Generator) nicht zuträfe.
+
+Das stimmt aber nicht, die normale Logik könnte auch in
+Methoden/Klassen gekapselt und mehrfach, sogar
+parametrisiert, aufgerufen/verwendet werden.
+
+Also bleibt als Vorteil für den Code-Generator nur die
+virale Wirkung der Compiler-Prüfung.
+
+Es ist sozusagen eine Wirtschaftlichkeitssache,
+breakpoint-even.
+
+Falls der Code aber weiter in Bausteine zerlegt wird, was
+unweigerlich eine Trennung von Realisierung und Verwendung
+von Bausteinen zur Folge hat, treten wieder Fernwirkungen
+auf, für welche Compiler-Prüfungen die Sicherheit vor
+Fehlern erhöhen.
+
+Vielleicht gibt es sogar eine emergente Wirkung.
+
+
+Im Bereich der Safe-Operations suche ich noch nach
+Anwendungs- bzw Testfällen.
+
+Im Moment ist es so, als ob man einen Parser für eine
+Sprache schreibt, für die man keine Grammatik hat.
+
+Ich muss zugeben, ich habe sowas schon gemacht.
+
+Da ich die gesamten Zusammenhänge der Safe-Operations noch
+nicht verstanden habe, wird sich hier wahrscheinlich noch
+einiges ändern.
+
+
+Performance
+-----------
+
+Bezüglich der Performance muss man die Laufzeit des mit
+Constraints abgesicherten Programms und die Dauer des
+Generierungslaufes unterscheiden werden.
+
+Die Laufzeit des mit Constraints abgesicherten Programms ist
+mit Sicherheit schlechter als ohne Absicherung, da zum
+Erwerben des Constraints jeweils der Konstruktor mit der
+Constraint-Prüfung anhand der in der Constraint-Expression
+benutzten Prädikate erfolgt.
+
+Dabei sollte man aber Bedenken, dass die meisten
+Performance-Probleme bei Zugriffen auf die Datenbank
+auftreten und die Java-Laufzeit meist nur eine
+untergeordnete Rolle spielt.
+
+Und was nützt schon ein Programm, das schnell aber nicht
+korrekt ist.
+
+Der Generierungslauf bricht mit zunehmender Anzahl
+Constraints stark in der Laufzeit ein, weil die zu lösenden
+Probleme einen exponentiell ansteigenden Aufwand haben.
+
+Hier werde ich noch einiges optimieren.
+
+
+Risiken
+-------
+
+Üblicherweise sollte man generierten Code nicht einchecken.
+
+In der App, in welcher dieser Code-Generator entstand,
+habe ich die generirten Constraints nach und nach eingebaut,
+so dass irgendwann der Code-Generator von Klassen abhängig
+war, welche Constraint-Java-Klassen verwendet haben, die
+früher generiert wurden.
+
+Dadurch war ein Generieren innerhalb des Build-Prozesses
+nicht mehr möglich.
+
+Besonders kritisch ist dies, wenn der Schalter
+
+    deleteUnusedConstraintJavaFiles
+
+auf true steht, da eventuell beim Ändern der Constraint-Definition
+vorher vorhandene Constraint-Java-Klassen gelöscht werden.
+
+Deshalb sollte laufend eine Datensicherung erfolgen. 
+Dafür habe ich mein Tool
+
+    http://heinerkuecker.de/VersionSafe.html
+
+verwendet.
+
+
+Historie und Ausblick
+---------------------
+
+Dieser hier vorgestellte Code-Generator mag ziemlich simpel
+erscheinen, ist aber das Ergebnis von Überlegungen und
+Versuchen, die ich in den letzten zwei Jahren angestellt
+habe.
+
+Anregungen und Lösungsansätze dafür haben mir die
+Veranstaltungen der JUG-Erlangen und der Herbstcampus
+gegeben, die mir geholfen haben neben dem profanen Ansatz
+ein wenig die theoretischen Hintergründe zu verstehen.
+
+Die Möglichkeit, den Compiler mit Hilfe von Typen zum
+Vermeiden von Programmierfehlern einzusetzen, beschäftigt
+mich andererseits, seit ich Java benutze.
+
+Der vorher von mir verwendet Clipper-Compiler hat so schwach
+geprüft, dass jede Programmerweiterung zahlreiche Fehler
+nach sich gezogen hat.
+
+
+Eine auf jeden Fall geplante Erweiterung ist die Ersetzung
+der boolean-Rückgabewerte der test-Methoden der Prädikate
+durch BoolStrTupel, welche neben dem Ergebnis einen Fehlertext
+zur genauen Beschreibung des aufgetretenen Problems
+liefern.
+
+
+Fast alle IT-Technologie nutzen oder beruhen auf
+Bausteinbildung.
+
+Bisher ist im Code-Generator davon nichts zu sehen.
+
+Damit der Code-Generator eine Zukunft hat, muss es
+wahrscheinlich mal so etwas wie benannte (Sub-)Expressions
+mit Parametern oder andere Formen von Bausteinen geben.
+
+
+Ab Java8 wird das Checker-Framework [Link] mit seinen Typ-
+Annotationen in den Java-Standard aufgenommen.
+
+Man könnte glauben, dass dieser Code-Generator dann obsolet
+ist.
+
+Da ich aber beim Checker-Framework noch nichts über
+spezialisierende Switche, Kompatibilität, RangeCheck und
+SafeOperations gelesen habe, glaube ich dies nicht.
+
+Das Checker-Framework könnte aber die Null-Problematik
+(siehe Abschnitt Null-Problem(o)) dieses Generators
+absichern.
+
+Ich gehe davon aus, dass sich das Checker-Framework und
+dieser Generator gut ergänzen werden.
+
+
+Mit dem weiteren Einsatz des Code-Generators werden weitere
+Schalter und Optionen hinzukommen.
+
+Aber, wie jemand mal bei einem Votrag sagte "ein System das
+alles kann, kann auch nichts", also weitere Optionen erhöhen
+die Flexibilität, machen die Benutzung aber auch schwieriger.
+
+Bisher wird der Java-Code im Generator durch Concatenation
+hart codierter Strings erzeugt.
+
+Man könnte über Code-Templates nachdenken, aber hier gilt
+wie oben gesagt, mehr Flexibilität heisst auch mehr
+Verantwortung.
+
+Weiteres Tooling, zum Beispiel Eclipse-Plugins, gibt es bisher
+auch nicht.
+
+
+Links
+-----
+
+www.heinerkuecker.de/ConstraintCodeGenerator.html
+
+JASS Java with Assertions: http://csd.informatik.uni-oldenburg.de/~jass/
+
+Google-Code Contracts for Java: http://code.google.com/p/cofoja/
+
+Object Computing, Inc. — Software Engineering Tech Trends — September 2011, Design by Contract in Java with Google: http://sett.ociweb.com/sett/settSep2011.html
+
+C4J Design By Contract for Java: http://c4j.sourceforge.net/
+
+jContractor: Design by Contract for Java: http://jcontractor.sourceforge.net/
+
+OVal - the object validation framework for Java™ 5 or later :http://oval.sourceforge.net/userguide.html
+
+github GContracts: Programming by Contract for Groovy: https://github.com/andresteingress/gcontracts
+
+Google-Suche: AOP-Frameworks für Design by Contract
+
+Google-Suche: Design by Contract with JML (Java modeling Language)
+
+Extended Static Checker for Java version 2 (ESC/Java2): http://kindsoftware.com/products/opensource/ESCJava2/
+
+Type Annotations (JSR 308) and the Checker Framework: http://types.cs.washington.edu/jsr308/

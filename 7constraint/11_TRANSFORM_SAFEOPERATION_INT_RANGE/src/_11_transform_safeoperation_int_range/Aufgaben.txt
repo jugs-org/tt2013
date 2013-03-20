@@ -1,0 +1,99 @@
+11 Transform Safe Operation Int Range Aufgaben
+==============================================
+
+Sichere Operationen bilden ein Constraint auf ein anderes ab.
+
+Wenn ein Constraint
+
+x > 0
+
+existiert und dieses um 1 erhöht wird
+
+x + 1
+
+ist das Ergebnis ein neues Constraint
+
+x > 1
+
+Der Code-Generator ermittelt das Ziel-Constraint
+mit Hilfe der zu implementierenden Methoden der
+beteiligten Prädikate, welche das Interface
+
+    de.heinerkuecker.constraint.TransformablePredicate<CT>
+
+implementieren müssen.
+
+Allgemein
+---------
+
+In der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _11_transform_safeoperation_int_range.TransformSafeOperationIntRangeConstraintCodeGenerator
+
+ist ein Constraint für Int-Wertebereich vordefiniert.
+
+
+1. Aufgabe (Festlegen der sicheren Operationen an den Constraints)
+------------------------------------------------------------------
+
+Ergänzen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _11_transform_safeoperation_int_range.TransformSafeOperationIntRangeConstraintCodeGenerator
+
+für das vorhandene Constraint die fehlende sichere Operation:
+
+    AddIntSafeOperation
+
+
+2. Aufgabe (Implementieren der transform-Methode an den beteiligten Prädikaten)
+-------------------------------------------------------------------------------
+
+Ergänzen Sie in den beteiligten Prädikaten
+
+    IntGreater
+    IntEqual
+
+jeweils die transform-Methode.
+
+
+3. Aufgabe (Generieren der Constraints mit den sicheren Operationen)
+--------------------------------------------------------------------
+
+Starten Sie die Generierung der Constraint-Code-Generator-Klasse
+
+    _11_transform_safeoperation_int_range.TransformSafeOperationIntRangeConstraintCodeGenerator
+
+Benutzen Sie die generierten sicheren Operationen in der vorgefertigten
+JUnit4-Testcase-Klasse
+
+    _11_transform_safeoperation_int_range.test.TransformSafeOperationIntRangeConstraintCodeGeneratorTest
+
+
+4. Aufgabe (Prüfen Sie die generierten Constraints mit einem Unit-Test)
+-----------------------------------------------------------------------
+
+Ergänzen Sie die Tests in der vorgefertigten Test-Klasse
+
+    _11_transform_safeoperation_int_range.test.TransformSafeOperationIntRangeConstraintCodeGeneratorTest
+
+
+5. Zusatz-Aufgaben (weitere sichere Operationen und Unit-Tests)
+---------------------------------------------------------------
+
+Probieren Sie einen anderen Wertebereich, zum Beispiel
+
+    x < 0 || x == 0
+
+Probieren Sie eine andere sichere Operation, zum Beispiel
+eine Subtraktion.
+    
+    
+
+
+Überlegen Sie sich aus Ihrem aktuellen Projekt-Umfeld
+weitere sichere Operationen mit fachlichem Hintergrund
+(die Substring-Beispiele sollen das Prinzip im wesentlichen
+demonstrieren, sind aber bereits sinvoll nutzbar).
+
+Versuchen Sie eine solche fachlich motivierte
+sichere Operation zu realisieren.

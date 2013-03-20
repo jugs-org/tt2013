@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Komposition von Prädikaten</h2>
+Predicate&lt;CT&gt; <font color="blue">predicate</font> =
+    <font color="green">and</font>(
+        new <font color="blue">ZENTRALE</font>() ,
+        <font color="green">or</font>(
+            new <font color="blue">SCHREIB_BERECHTIGUNG</font>() ,
+            new <font color="blue">LESE_BERECHTIGUNG</font>() ) );
+
+<font color="blue">/**
+ * Hilfsmethode zum Aufbau von Und-verknüpften Prädikat-Expressions.
+ *
+ * @param &lt;CT&gt; Type-Parameter Kontext-Objekt-Typ
+ * @param predicateArr vararg Und-zu-verknüpfende Prädikate
+ * @return verknüpfte Prädikate
+ */</font>
+public static &lt;CT&gt; Predicate&lt;CT&gt; and(
+        final Predicate&lt;CT&gt;... predicateArr ) {
+    return new <font color="blue">And</font>&lt;CT&gt;( predicateArr );
+}
+
+<font color="blue">/**
+ * Hilfsmethode zum Aufbau von Oder-verknüpften Prädikat-Expressions.
+ *
+ * @param &lt;CT&gt; Type-Parameter Kontext-Objekt-Typ
+ * @param predicateArr vararg Oder-zu-verknüpfende Prädikate
+ * @return verknüpfte Prädikate
+ */</font>
+public static &lt;CT&gt; Predicate&lt;CT&gt; or(
+        final Predicate&lt;CT&gt;... predicateArr ) {
+    return new <font color="blue">Or</font>&lt;CT&gt;( predicateArr );
+}
+
+(xor, not sind auch möglich)
+(Basis meines Code-Generators)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0016.html">weiter</A>
+</BODY>
+</HTML>

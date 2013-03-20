@@ -1,0 +1,179 @@
+2 Includes Aufgaben
+===================
+
+Includierte Prädikate ermöglichen eine kompaktere Notation von Constraint-Expressions.
+
+Ein Prädikat ist immer zu seinen includierten Prädikaten kompatibel (einfache Implikation).
+
+Eine Includierung stellt auch eine Spezialisierung dar(ähnlich zur Java-Vererbung),
+das includierende Prädikat spezialisiert das includierte Prädikat.
+
+
+Allgemein
+---------
+
+Im Package
+
+    _02_includes.enums
+
+befinden sich die Klassen
+
+    Ebene
+    Region
+    Rolle
+
+welche die Hierarchie einer Organisation abbilden
+
+              |
+Ebene         |
+              |
+--------------+---------------------------------------------
+              |
+Zentrale      |                     Zentrale
+              |                        |
+              |           +--------+---+---+-------+
+              |           |        |       |       |
+Niederlassung |          Nord     Sued    West    Ost
+              |           |        |       |       |
+              |      +----+-----+  ...     ...     ...
+              |      |    |     |
+Filiale       |      1    2     3
+              |
+
+Je Ebene und Region(Nord, Sued, Ost, West) besteht die Berechtigung
+zum Aufruf einer bestimmten Operation(Java-Methode).
+
+
+1. Aufgabe (Anlegen von Prädikaten)
+-----------------------------------
+
+Ergänzen Sie im Package
+
+  _02_includes.predicates
+
+an den vorhandenen primitiven Prädikate die fehlenden Includes:
+
+  RolleFiliale
+      includiert: RolleEbeneFiliale
+    
+  RolleFilialeNord
+      includiert: RolleFiliale
+                  RolleRegionNord
+
+  RolleNiederlassung
+      includiert: RolleEbeneNiederlassung
+
+  RolleNiederlassungNord
+      includiert: RolleNiederlassung
+                  RolleRegionNord
+
+    RolleZentrale
+      includiert: RolleEbeneZentrale
+
+an.
+
+
+2. Aufgabe (Konvertierung zum includierten Prädikat (einfache Implikation))
+---------------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _02_includes.IncludesConstraintCodeGenerator
+
+ein Constraint
+
+    new RolleZentrale()
+
+und ein Constraint
+
+    new RolleEbeneZentrale()
+
+an.
+
+Kontrollieren Sie in den generierten Klassen
+
+    RolleZentraleConstraint
+    RolleEbeneZentraleConstraint
+
+ob die Konvertierungs-Methode zum oben genannten 
+Constraint generiert wurde.
+
+
+3. Aufgabe (Konvertierung zum includierten Prädikat (einfache Implikation))
+---------------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _02_includes.IncludesConstraintCodeGenerator
+
+ein Constraint
+
+    new RolleNiederlassungNord()
+
+und folgende Constraints für die includierten Prädikate
+
+    new RolleNiederlassung()
+    new RolleEbeneNiederlassung()
+    new RolleRegionNord()
+
+an.
+
+Kontrollieren Sie in den generierten Klasse
+
+    RolleNiederlassungNordConstraint
+
+ob die Konvertierungs-Methode zu den Constraints
+mit den includierten Prädikaten generiert wurden.
+
+
+4. Aufgabe (Benutzung Constraints mit Kompatibilität über Konvertierungs-Methode)
+---------------------------------------------------------------------------------
+
+Achtung, diese Aufabe entweder überspringen oder die angegebene Klasse selbst anlegen
+
+Legen Sie in der Klasse
+
+    _02_includes.use.IncludesConstraintUse
+
+Methoden mit verschiedenen Constraint-Parametern an:
+
+    public static void doRolleNiederlassungNord(
+            final RolleNiederlassungNordConstraint constraint )
+
+    public static void doRolleNiederlassung(
+            final RolleNiederlassungConstraint constraint )
+
+    public static void doRolleEbeneNiederlassung(
+            final RolleEbeneNiederlassungConstraint constraint )
+
+    public static void doRolleRegionNord(
+            final RolleRegionNordConstraint constraint )
+
+
+Rufen Sie Methoden mit kompatiblen Constraints auf, 
+indem Sie die vorhandenen Constraints über die 
+Konvertierungs-Methoden umwandeln.
+
+
+5. Zusatz-Aufgaben (not, xor, Unit-Tests)
+----------------------------------------
+
+Es gibt ausser den bereits verwendeten Und- und Oder-Verknüpfungen
+noch not und xor.
+
+Legen Sie dafür Constraints in der Klasse
+
+    _02_includes.IncludesConstraintCodeGenerator
+
+an.
+
+Kontrollieren Sie die generierten Konvertierungs-Methoden.
+
+
+Verwenden Sie diese Constraints in
+
+    _02_includes.use.IncludesConstraintUse
+
+
+
+Legen Sie Unit-Tests für die generierten Klassen an.

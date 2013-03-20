@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Prädikate</h1></u>
+<b>
+<pre>
+<u><h2>Prädikat-Klassen</h2></u>
+Atom einer Constraint-Expression
+
+<font color="blue">/**
+ * Abstrakte Ober-Klasse für Prädikate des
+ * {@link AbstractConstraintCodeGenerator}.
+ *
+ * @param &lt;CT&gt; Type-Parameter Kontext-Objekt-Type
+ */</font>
+abstract public class Predicate&lt;CT&gt; {
+    <font color="blue">/**
+     * Zu implementierende Methode zum Testen
+     * der Bedingung.
+     *
+     * @param contextObj Kontext-Objekt, dieses Objekt enthält den aktuellen Benutzer,
+     *                   die aktuell geladene fachliche Entität und weitere Informationen
+     *                   über den Context des Prädikates
+     * @return ob die Bedingung des Prädikates durch das Kontext-Objekt eingehalten wird
+     */</font>
+    public boolean test(
+                final CT contextObj );
+
+
+<font color="blue">test</font>-Methode mit Kontext-Objekt-Parameter
+und boolean-Rückgabewert
+
+Vorteil:
+keine spezielle Constraint-Sprache
+alle Möglichkeiten von Java nutzbar (turing-vollständig)
+
+korrekt implementieren: toString, hashCode, equals
+(für Code-Generierung und Verwendung in Collections)
+
+Singleton (eventuell)
+
+(Basis meines Code-Generators)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0014.html">weiter</A>
+</BODY>
+</HTML>

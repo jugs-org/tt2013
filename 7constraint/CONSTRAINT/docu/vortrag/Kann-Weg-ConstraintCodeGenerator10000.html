@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Kombinatorische Explosion</h2>
+(war ein Problem bei reiner Aufzählung und 
+ Generierung aller Kombinationen)
+
+Erzeugung nur wirklich erforderlicher Klassen 
+der Rechte-Kombination
+
+Collection&lt;? extends Predicate&lt;ExampleContextObject&gt;&gt; <font color="blue">allPredicateExpressionColl</font> =
+    CollectionUtil.noPrevLinkedHashset(
+            and(
+                    new Z() ,
+                    new SCHREIB() ) ,
+            or(
+                    new Z() ,
+                    new R() ) ,
+            ... );
+
+
+(zeige Code)
+
+Idee virtuelles Datei-System (Klasse wird bei
+ Bedarf generiert, kompiliert und geladen)
+(aber wie kann man das in die IDE einbinden?)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator10001.html">weiter</A>
+</BODY>
+</HTML>

@@ -1,0 +1,143 @@
+Schneller Start
+===============
+
+Als erstes sollte die Analyse (nur kurz im Kopf) des Projektes erfolgen. 
+Wo möchte ich Code (Methoden-Parameter) per Compiler absichern. 
+
+Als Beispiel eine Methode 
+
+    void bestellungFreigeben( 
+            // User mit Rolle und weiteren Infos (Abteilungsnummer) 
+            final User user , 
+            // zu bearbeitende fachliche Entität 
+            final Bestellung bestellung ) 
+    { 
+        ... 
+
+Da die Prädikate dieses Code-Genrators nur ein Objekt als 
+Parameter entgegennehmen, benötigt man ein Kontext-Objekt 
+(dies war in der ursprünglichen App, in welcher dieser 
+Generator entstand, schon vorhanden und war einfach 
+praktisch in der Anwendung) 
+
+    public final class BestellungKontextObj 
+    { 
+        public final User user; 
+    
+        public final Bestellung bestellung; 
+    
+        /** 
+         * Konstruktor 
+         */ 
+        public BestellungKontextObj(... 
+    } 
+
+
+Dann müssen die Prädikate geschrieben werden 
+
+public final BestellungFreigebenRole 
+extends PrimitivPredicate<BestellungKontextObj> 
+{ 
+    public boolean test( 
+        final BestellungKontextObj bestellungKtxObj ) 
+    { 
+        return bestellungKtxObj.user.getRole().equals( 
+               Role.FreigebenRole ); 
+    } 
+
+} 
+
+public final BestellungFreigebenStatus 
+extends PrimitivPredicate<BestellungKontextObj> 
+{ 
+    public boolean test( 
+        final BestellungKontextObj bestellungKtxObj ) 
+    { 
+        return bestellungKtxObj.bestellung.getStatus().equals( 
+               // hier fällt mir kein besserer Name ein 
+               BestellungStatus.NochNichtFreigegebenStatus ); 
+    } 
+
+} 
+
+Dann muss der Code-Generator aufgesetzt werden: 
+(zu beachten ist dabei, dass bei mir (WinXP, Eclipse 3.7) 
+der Pfad aus System.getProperty( "user.dir" ) auf das 
+aktuelle Eclipse-Projekt zeigt, so dass der 
+src-Ordner darunter liegt) 
+
+public final class BestellungConstraintCodeGenerator 
+{ 
+    /** 
+     * Start Generierung. 
+     * 
+     * @param args unused 
+     * @throws IOException rethrown 
+     */ 
+    public static void main( 
+            final String [] args ) 
+    throws IOException 
+    { 
+        new AbstractConstraintCodeGenerator<BestellungKontextObj>( 
+                //cacheFolder 
+                null , 
+                //srcDirPathStr 
+                System.getProperty( 
+                        "user.dir" ) + 
+                File.separator + 
+                "src" , 
+                //packageName 
+                "bestellapp.constraints" , 
+                //importStrArr , 
+                new String[]{ 
+                    "bestellapp.types.User" , 
+                    "bestellapp.types.Bestellung" , 
+                    "bestellapp.predicates.*" } , 
+                //contextObjClassName 
+                "BestellungKontextObj" , 
+                //contextObjName 
+                "bestellungKtxObj" , 
+                //writeToDisc 
+                true , 
+                //deleteUnusedConstraintJavaFiles (hier Vorsicht, besser erst mal false) 
+                true , 
+                //exclude 
+                new Exclude<BestellungKontextObj>() ) 
+        {{ 
+            add( 
+                    and( 
+                            new BestellungFreigebenRole() , 
+                            new BestellungFreigebenStatus() ) ); 
+
+            // zwei einfache Constraints zum Test Konvertierung 
+            add( 
+                    new BestellungFreigebenRole() ); 
+            add( 
+                    new BestellungFreigebenStatus() ); 
+        }}.execute(); 
+    } 
+
+}
+
+
+Die im constraint-Package(oder ähnlich) entstandenen Constraints
+müssen dann natürlich im Code verwendet werden: 
+
+   void bestellungFreigeben( 
+      // User mit Rolle und weiteren Infos (Abteilungsnummer) 
+      //final User user , 
+      // zu bearbeitende fachliche Entität 
+      //final Bestellung bestellung 
+      final ANDB_BestellungFreigebenRole_BestellungFreigebenStatus_ANDE constraint ) 
+   { 
+       if ( constraint == null ) 
+       { 
+           throw new IllegalArgumentException( "constraint is null" ); 
+       } 
+
+       constraint.bestellungKtxObj.bestellung.setStatus( 
+           BestellungStatus.FreigegebenStatus ); 
+
+       constraint.bestellungKtxObj.bestellung.save(); 
+   } 
+

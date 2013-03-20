@@ -1,0 +1,138 @@
+9 New Safe Operation Aufgaben
+=============================
+
+Sichere Operationen bilden ein Constraint auf ein anderes ab.
+
+Wenn ein Constraint
+
+x > 0
+
+existiert und dieses um 1 erhöht wird
+
+x + 1
+
+ist das Ergebnis ein neues Constraint
+
+x > 1
+
+
+Eine Ausnahme sind NewDestinationConstraintSafeOperations
+
+    de.heinerkuecker.constraint.NewDestinationConstraintSafeOperation<CT>
+    
+welche als Ergebnis ein Constraint haben,
+welches nicht aus dem ursprünglichen Constraint
+abgeleitet wurde.
+
+
+Allgemein
+---------
+
+In der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _09_new_safeoperation_str_len.NewSafeOperationStrLenConstraintCodeGenerator
+
+sind verschiedene Constraints für Strings vordefiniert.
+
+
+1. Aufgabe (Festlegen der sicheren Operationen an den Constraints)
+------------------------------------------------------------------
+
+Ergänzen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _09_new_safeoperation_str_len.NewSafeOperationStrLenConstraintCodeGenerator
+
+für die vorhandenen Constraints die fehlenden sicheren Operationen:
+
+    SubstringFromPosToEndSafeOperation
+    SubstringFromPosToPosSafeOperation
+    SubstringFromStartToPosSafeOperation    
+
+
+    add(
+            and(
+                    // ein String mit der minimalen Länge von 10 Zeichen
+                    new StrMinLen( 10 ) ,
+                    // und dessen erstes Zeichen ein Großbuchstabe ist
+                    new StrFirstUppercaseLetter() ,
+                    // ein String dessen letztes Zeichen eine Ziffer ist
+                    new StrLastDigit() ) ,
+            new AbstractSafeOperation[]
+            {
+                // sichere Substring-Operation, dafür ist eine minimale Länge erforderlich
+                // bei Substring ab Pos 0 soll das StrFirstUppercaseLetter-Constraint im Ergebnis-Constraint enthalten sein
+                new SubstringFromPosToPosSafeOperation(
+                        //fromPos
+                        0 ,
+                        //toPos
+                        5 ) ,
+                // sichere Substring-Operation, dafür ist eine minimale Länge erforderlich
+                // bei Substring ab Pos 2 darf das StrFirstUppercaseLetter-Constraint nicht im Ergebnis-Constraint enthalten sein
+                new SubstringFromPosToPosSafeOperation(
+                        //fromPos
+                        2 ,
+                        //toPos
+                        7 ) ,
+                // sichere Substring-Operation, dafür ist eine minimale Länge erforderlich
+                // bei SubstringFromPosToEndSafeOperation ab Pos 2 und StrMinLen > 2 soll das StrLastDigit-Constraint im Ergebnis-Constraint enthalten sein
+                new SubstringFromPosToEndSafeOperation(
+                        //fromPos
+                        2 ) ,
+                // sichere Substring-Operation, dafür ist eine minimale Länge erforderlich
+                new SubstringFromStartToPosSafeOperation(
+                        //toPos
+                        5 )
+            } );
+
+
+2. Aufgabe (Generieren der Constraints mit den sicheren Operationen)
+--------------------------------------------------------------------
+
+Starten Sie die Generierung der Constraint-Code-Generator-Klasse
+
+    _09_new_safeoperation_str_len.NewSafeOperationStrLenConstraintCodeGenerator
+
+Benutzen Sie die generierten sicheren Operationen in der vorgefertigten
+JUnit4-Testcase-Klasse
+
+    _09_new_safeoperation_str_len.test.NewSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+4. Aufgabe (Prüfen Sie die generierten Constraints mit einem Unit-Test)
+-----------------------------------------------------------------------
+
+Ergänzen Sie die Tests in der vorgefertigten Test-Klasse
+
+    _09_new_safeoperation_str_len.test.NewSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+3. Zusatz-Aufgaben (weitere sichere Operationen und Unit-Tests)
+---------------------------------------------------------------
+
+Überlegen Sie sich aus Ihrem aktuellen Projekt-Umfeld
+weitere sichere Operationen mit fachlichem Hintergrund
+(die Substring-Beispiele sollen das Prinzip im wesentlichen
+demonstrieren, sind aber bereits sinvoll nutzbar).
+
+Versuchen Sie eine solche fachlich motivierte
+sichere Operation zu realisieren.
+
+
+Sehen Sie sich die besonders implementierte Methode
+
+    getDestinationConstraintExpression
+    
+in der Definitionsklasse für sichere Operation
+
+    SubstringFromPosToEndSafeOperation
+
+an.
+
+Hier wird zur Ermittlung der vorherigen Mindest-String-Länge
+auf das ursprüngliche Constraint zurückgegriffen.
+
+Dies ist die Ausnahme, welche die Regel bestätigt.
+
+Bei der TransformDestinationConstraintSafeOperation sehen wir 
+dafür eine bessere Lösung
+

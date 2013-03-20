@@ -1,0 +1,100 @@
+8 Value Safe Operation Aufgaben
+===============================
+
+Sichere Operationen bilden ein Constraint auf ein anderes ab.
+
+Wenn ein Constraint
+
+x > 0
+
+existiert und dieses um 1 erhöht wird
+
+x + 1
+
+ist das Ergebnis ein neues Constraint
+
+x > 1
+
+
+Eine Ausnahme sind ValueSafeOperations
+
+    de.heinerkuecker.constraint.ValueSafeOperation<CT>
+    
+welche als Ergebnis einen Wert haben, kein Constraint.
+Dies sind die einfachsten sicheren Operationen dieses
+Code-Generators.
+
+
+Allgemein
+---------
+
+In der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _08_value_safeoperation_str_len.ValueSafeOperationStrLenConstraintCodeGenerator
+
+sind verschiedene Constraints für Strings vordefiniert.
+
+
+1. Aufgabe (Festlegen der sicheren Operationen an den Constraints)
+------------------------------------------------------------------
+
+Ergänzen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _08_value_safeoperation_str_len.ValueSafeOperationStrLenConstraintCodeGenerator
+
+für die vorhandenen Constraints die fehlenden 
+sicheren Operationen StrLenSafeOperation:
+
+    add(
+            // ein String, der nicht null ist
+            new StrIsNotNull() ,
+            new AbstractSafeOperation[]
+            {
+                // sichere Operation zur Ermittlung der Länge des Strings, dafür darf der String nicht null sein
+                new StrLenSafeOperation()
+            } );
+
+
+2. Aufgabe (Generieren der Constraints mit den sicheren Operationen)
+--------------------------------------------------------------------
+
+Starten Sie die Generierung der Constraint-Code-Generator-Klasse
+
+    _08_value_safeoperation_str_len.ValueSafeOperationStrLenConstraintCodeGenerator
+
+Benutzen Sie die generierten sicheren Operationen in der vorgefertigten
+JUnit4-Testcase-Klasse
+
+    _08_value_safeoperation_str_len.test.ValueSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+4. Aufgabe (Prüfen Sie die generierten Constraints mit einem Unit-Test)
+-----------------------------------------------------------------------
+
+Ergänzen Sie die Tests in der vorgefertigten Test-Klasse
+
+    _08_value_safeoperation_str_len.test.ValueSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+3. Zusatz-Aufgaben (weitere sichere Operationen und weitere Unit-Tests)
+-----------------------------------------------------------------------
+
+Denken Sie sich weitere sichere Operationen, zum Beispiel Anzahl Ziffern im String,
+Anzahl Buchstaben im String, aus und implementieren Sie diese.
+
+Diese sollen als Voraussetzung einen String mit mindestens einer Ziffer
+bzw. Buchstabe verlangen
+
+    @Override
+    public Predicate<String> getPremise(
+            final Exclude<String> exclude )
+    {
+        return new StrHasDigits();
+    }
+
+Legen Sie Unit-Tests für die generierten Klassen an.
+
+Legen Sie einen Unit-Test an, der das Abweisen des Generierens
+der sicheren Operation bei nich erfüllter Vorausetzung (premise)
+testet.
+

@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>SafeMember</h1></u>
+<b>
+<pre>
+<h3>constraint-sichere Werte</h3>
+Beispiel:
+  (<font color="blue">RolleNiederlassungNord</font> and <font color="blue">RolleFilialeNord</font>)
+
+beide Prädikate inkludieren
+  <font color="blue">RolleRegionNord</font> (immer erfüllt,
+                   wenn Constraint erfüllt)
+
+SafeMember (Code wird im Constraint generiert)
+
+  public final <font color="blue">Region.Nord</font> regionNord =
+          (<font color="blue">Region.Nord</font>) ctxObj.region;
+
+Manueller(gefährlicher) Cast
+(durch Anwendungsprogrammierer)
+nicht erforderlich.
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0037.html">weiter</A>
+</BODY>
+</HTML>

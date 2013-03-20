@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Grenzen</h2>
+Was man damit nicht absichern kann
+
+Absicherung korrekter Programmablauf
+(API-Benutzung):
+
+Port <font color="blue">port</font> = ...
+
+if ( ... ) {
+    <font color="grey">// richtig</font>
+    <font color="blue">port.init()</font>;
+}
+else {
+    <font color="red">// falsch</font>
+    <font color="red">...</font>
+}
+
+<font color="blue">port</font>.getXyz();
+
+wird nicht erkannt
+
+demzufolge:
+    Einschränkung auf Prüfungen an Methoden-Grenzen
+    (Aufruf-Seite - aufgerufene Seite)
+
+    oder unveränderliche Werte mit jeweils
+    eigenen Typ für jeden Programmzustand
+
+    also unveränderliche Werte benutzen
+    und auf Schleifen verzichten (Rekursion)
+
+    oder sichere Operationen
+    (Tic Tac Toe Beispiel)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0051.html">weiter</A>
+</BODY>
+</HTML>

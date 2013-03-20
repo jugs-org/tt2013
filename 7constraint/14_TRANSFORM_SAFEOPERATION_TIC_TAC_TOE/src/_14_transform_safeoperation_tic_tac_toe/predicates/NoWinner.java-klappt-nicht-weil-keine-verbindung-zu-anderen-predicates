@@ -1,0 +1,65 @@
+package _14_transform_safeoperation_tic_tac_toe.predicates;
+
+import _14_transform_safeoperation_tic_tac_toe.TicTacToe;
+import de.heinerkuecker.constraint.Predicate;
+import de.heinerkuecker.constraint.PrimitivPredicate;
+
+/**
+ * Prädikat es gibt nch keinen Gewinner im Tic Tac Toe.
+ * 
+ * @author Heiner K&uuml;cker
+ */
+@SuppressWarnings( "serial" )
+public final class NoWinner
+extends PrimitivPredicate<TicTacToe>
+{
+    /**
+     * Konstruktor.
+     */
+    public NoWinner()
+    {
+        super( 
+                //lineNr
+                0 );
+    }
+
+    /**
+     * @see Predicate#test
+     */
+    @Override
+    public boolean test( 
+            final TicTacToe game )
+    {
+        try
+        {
+            // Die Methode winnerIs() wirft eine Exception, wenn es keinen Gewinner gibt
+            return game.winnerIs() == null;
+        }
+        catch ( final Exception e )
+        {
+            return true;
+        }
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return 
+            this.getClass().getSimpleName();
+    }
+
+    /**
+     * @see Predicate#toFileName
+     */
+    @Override
+    public String toFileName( 
+            final String separatorStr )
+    {
+        return 
+            this.toString();
+    }
+
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+Konvertierung zur Sub-Menge (zur spezielleren Expression)
+
+<h3>Innere nicht-statische abstrakte Switch-Klasse</h3>
+generierte abstrakte Methoden verhindern
+das Vergessen hinzugekommener Varianten/Zweige
+
+<font color="blue">/**
+ * Constraint class of ExampleContextObject.
+ * (Z or R).
+ */</font>
+public final class ORB_Z_R_OREConstraint {
+    <font color="blue">/**
+     * Abstract typesafe switch class of ORB_Z_R_OREConstraint.
+     * @param &lt;Ret&gt; Type-Parameter, Return-Type of case method
+     */</font>
+    abstract public class Switch&lt;Ret&gt; {
+        <font color="blue">/**
+         * To implement method for switch case value Z.
+         */</font>
+        abstract protected Ret caseZ( ZConstraint constraint );
+        <font color="blue">/**
+         * To implement method for switch case value R.
+         */</font>
+        abstract protected Ret caseR( RConstraint constraint );
+        <font color="blue">/**
+         * To call method for executing switch case.
+         */</font>
+        public final Ret doSwitch() {
+            if ( <font color="green">new Z().test( ORB_Z_R_OREConstraint.this.contextObj )</font> ) {
+                return caseZ( new ZConstraint( this.contextObj ) );
+            }
+            if ( <font color="green">new R().test( ORB_Z_R_OREConstraint.this.contextObj )</font> ) {
+                return caseR( new RConstraint( this.contextObj ) );
+            }
+            throw new IllegalStateException( "this will never occur" );
+        }
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0027.html">weiter</A>
+</BODY>
+</HTML>

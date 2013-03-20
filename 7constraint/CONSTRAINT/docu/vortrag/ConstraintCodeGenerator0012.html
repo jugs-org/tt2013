@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<u><h2>Churchsche These</h2></u>
+Funktionen können alles abbilden,
+was eine Turing-Maschine abbilden kann
+(sind Turing-vollständig)
+
+
+<h3>Schlechtes Beispiel</h3>
+Java-Scopes (Schalter, keine Expressions)
+
+<i>public protected private (default)</i>
+
+Methode <font color="blue">xxx</font> darf nur von Klasse in Package
+<font color="blue">yyy</font> aufgerufen werden (nicht abbildbar)
+
+Java-Typ-System ist ein Schalter-System
+(nicht Turing-vollständig)
+
+
+<h3>Constraint-Code-Generator</h3>
+Verknüpft <font color="blue">Prädikate</font> mit
+AND, OR sowie NOT
+
+(Basis meines Code-Generators, aber Einschränkung
+ auf Boolean, (noch) kein kleiner-als usw)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0013.html">weiter</A>
+</BODY>
+</HTML>

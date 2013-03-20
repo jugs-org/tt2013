@@ -1,0 +1,149 @@
+6 Fizz Buzz Aufgaben
+===================
+
+Das Fizz-Buzz-Beispiel soll zeigen, wie es möglich ist,
+einen Programmfehler in einer if-else-Kaskade zu vermeiden.
+
+Allgemein
+---------
+
+Die Fizz-Buzz-Aufgabe:
+
+Es sollen die Zahlen von 1 bis 100 aufgezählt werden.
+
+Bei jeder ganzzahlig durch 3 teilbaren Zahl soll Fizz ausgegeben werden.
+
+Bei jeder ganzzahlig durch 5 teilbaren Zahl soll Buzz ausgegeben werden.
+
+Bei jeder ganzzahlig durch 15 teilbaren Zahl soll Fizz Buzz ausgegeben werden.
+
+
+Bei der Umsetzung dieser Aufgabe kann es bei folgendem Code zu einem Fehler Kommen:
+
+    for ( int i = 1 ; i &lt;= 100 ; i++ )
+    {
+        if ( i % 3 == 0 )
+        {
+            System.out.println( "Fizz" );
+        }
+        else if ( i % 5 == 0 )
+        {
+            System.out.println( "Buzz" );
+        }
+        else if ( i % 15 == 0 )
+        {
+            System.out.println( "FizzBuzz" );
+        }
+        else
+        {
+            System.out.println( i );
+        }
+    }
+
+Der dritte Zweig in der if-else-Kaskade wird nie erreicht,
+weil bereits der erste Zweig zugetroffen hat.
+
+Durch diesen Constraint-Code-Generator kann dieser
+Programmierfehler vermieden werden.
+
+Natürlich ist das Fizz-Buzz-Beispiel trivial,
+aber vielleicht haben Sie in Ihrem Projekt einen
+komplizierten if-else-Verteiler, bei dem solche
+Fälle auftreten können und nicht ohne weiteres
+zu überblicken sind.
+
+Allgemein ist oben beschriebenes Fehler-Risiko
+ein Problem der imperativen Programmierung,
+bei welcher die Reihenfolge der Abfrage das
+Ergebnis beeinflusst.
+
+Ein weiteres Fehler-Risiko ist ein veränderlicher 
+Anfangswert, welcher in einem if-Zweig verändert wird 
+und kein else-Zweig bzw else-if-Zweig ausimplementiert 
+wird, weil von einem unscharfen Default ausgegangen 
+wird, der auf einer weit entfernten Code-Stelle beruht, 
+zum Beispiel einem SQL, in welchem die auftretenden
+Werte selektiert wurden.
+
+
+1. Aufgabe (Anlegen der Switch-Definition)
+------------------------------------------
+
+Ergänzen Sie in der Klasse
+
+    _06_switch_fizzbuzz.FizzBuzzConstraintCodeGenerator
+
+für das vorhandene Constraint die fehlenden Switch-Definition
+mit den Prädikaten:
+
+    Fizz - ganzzahlig teilbar durch 3
+    Buzz - ganzzahlig teilbar durch 5
+
+    add(
+            or(
+                    or(
+                            new Fizz() ,
+                            not( new Fizz() ) ) ,
+                    or(
+                            new Buzz() ,
+                            not( new Buzz() ) ) ) ,
+            switchDef( 
+                    "FizzBuzz" , 
+                    //caseMethodReturnTypeName
+                    "void" ,
+                    //caseMethodExceptionsStr
+                    null ,
+                    //switchPredicateArr
+                    and(
+                            new Fizz() ,
+                            not( new Buzz() ) ) ,
+                    and(
+                            new Buzz() ,
+                            not( new Fizz() ) ) ,
+                    and(
+                            new Fizz() ,
+                            new Buzz() ) ,
+                    and(
+                            not( new Fizz() ) ,
+                            not( new Buzz() ) ) ) );
+
+
+2. Aufgabe (Generieren der Constraints und Anlegen eines Unit-Test)
+-------------------------------------------------------------------
+
+Generieren Sie die Constraints legen Sie in der vorgefertigten 
+JUnit4-Testcase-Klasse
+
+    _06_switch_fizzbuzz.test.FizzBuzzConstraintCodeGeneratorTest
+
+einen Test für den Durchlauf des Fizz-Buzz-Prgrammes an.
+
+
+3. Aufgabe (Prüfen des Abweisens der nicht vollständigen Disjointness der Switch-Zweige)
+----------------------------------------------------------------------------------------
+
+Ändern Sie die Switch-Definition so ab, dass die Zweige nicht mehr disjoint sind
+(sich die Belegungen der boolschen Belegungen der Switch-Constraint-Expressions
+nicht mehr ausschliessen).
+
+Prüfen Sie, ob das Generieren solcher Switches abgeweisen wird.
+
+Legen Sie in der vorgefertigten JUnit4-Testcase-Klasse
+
+    _06_switch_fizzbuzz.test.FizzBuzzConstraintCodeGeneratorTest
+
+Tests für diese abzuweisenden Switch-Definitionen an.
+
+
+4. Aufgabe (Generieren eines Default-Zweiges statt eines dedizierten (not(Fizz) and not(Buzz))-Zweiges)
+-------------------------------------------------------------------------------------------------------
+
+Ändern Sie die Switch-Definition so ab, dass statt des dedizierten (not(Fizz) and not(Buzz))-Zweiges ein
+Default-Zweig generiert wird.
+
+Passen Sie den Test in
+
+    _06_switch_fizzbuzz.test.FizzBuzzConstraintCodeGeneratorTest
+
+an und prüfen Sie das korrekte Verhalten.
+

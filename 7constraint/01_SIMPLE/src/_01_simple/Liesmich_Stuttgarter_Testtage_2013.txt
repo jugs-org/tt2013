@@ -1,0 +1,95 @@
+Allgeines zu den Übungen/Workshop für 
+die Stuttgarter Testtage 2013
+=====================================
+
+Die Übungen wurden komplett gelöst
+zusammengestellt und danach bestimmte
+Codestellen, die als Übung einzufügen
+sind, auskommentiert.
+
+An diesen auskommentierten Code-Stellen
+befindet sich ein Kommentar
+
+    // TODO Übungsaufgabe Stuttgarter Testtage 2013
+
+um für die Übung auskommentierten
+Code von sonstigem auskommentierten
+Code zu unterscheiden.
+
+In JUnit-Testcase-Klassen befindet sich
+noch eine
+
+    Assert.fail???TODO doch nicht gemacht
+
+Anweisung.    
+
+Anzulegende Java-Klassen wurden in
+*.java-TODO umbenannt.
+
+Wenn ein Teilnehmer es sich leicht
+machen will, kann er durch Umbenennen
+und Einkommentieren alle
+Übungen leicht absolvieren.
+
+Ich gehe davon aus, dass Du dies
+nicht machst, sondern versuchst,
+anhand der Übungen etwas zu lernen.
+
+Für die Zusatzaufgaben gibt es keine
+vorgefertigten Codestellen bzw Dateien.
+
+
+Eclipse-Einstellungen
+=====================
+
+Für diese Übungen sollten in der Eclipse
+die automatische Aktualisierung des
+Workspace eingeschaltet sein, da der
+Code-Generator in die festgelegten
+Verzeichnisse innerhalb des 
+Eclipse-Workspace die generierten
+Dateien speichert.
+
+Der Navigationsweg zu dieser Einstellung
+lautet:
+
+Fenter-Menü
+    Window
+        Preferences
+            Konfigurations-Baum
+                General
+                    Workspace
+
+
+Alternativ muss nach jeder Generierung
+des Codes der Workspace über die Taste
+F5 im Package Explorer oder Navigator
+aktualisiert werden.
+
+
+Datensicherheit
+===============
+
+Der Constraint-Code-Generator überschreibt
+und löscht Dateien in den festgelegten
+Zielverzeichnissen.
+
+Deshalb sind diese sorgfältig zu
+kontrollieren und eventuell zu
+sichern.
+
+Die Beispiele sind auf die Arbeit
+mit der Eclipse-IDE ausgelegt und
+nutzen die den innerhalb der
+Eclipse gestarteten Programme
+gegebenen Umgebungungsvariable
+'user.dir', welche auf das aktuelle
+Projektverzeichnis verweist.
+
+Ich habe die Programme mit keiner
+anderen IDE, wie NetBeans oder
+IntelliJ getestet.
+
+Benutzer anderer IDEs als Eclipse
+müssen die Programme vor dem Start
+entsprechend anpassen.

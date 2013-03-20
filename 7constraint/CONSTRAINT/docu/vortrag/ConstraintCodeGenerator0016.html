@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Name der erzeugten Klasse/Datei</h2>
+Predicate&lt;CT&gt; <font color="blue">predicate</font> =
+    <font color="green">and</font>(
+        new <font color="blue">ZENTRALE</font>() ,
+        <font color="green">or</font>(
+            new <font color="blue">SCHREIB</font>() ,
+            new <font color="blue">LESE</font>() ) );
+
+
+<font color="green">ANDB</font>_<font color="blue">ZENTRALE</font>_<font color="green">ORB</font>_<font color="blue">SCHREIB</font>_<font color="blue">LESE</font>_<font color="green">ORE</font>_<font color="green">ANDE</font>.java
+  |            |                |    |
+  |            |                |    `-- <font color="green">AND</font>-Ende
+  |            |                |
+  |            |                `-- <font color="green">OR</font>-Ende
+  |            |
+  |            `-- <font color="green">OR</font>-Beginn
+  |
+  `-- <font color="green">AND</font>-Beginn
+
+
+<font color="blue">ZENTRALE</font>Constraint.java
+            |
+            `-- Postfix
+
+Postfix 'Constraint' für Constraint-Klassen,
+die nur ein Prädikat enthalten und deshalb mit
+dem Prädikat in Namens-Konflikt geraten würden
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0017.html">weiter</A>
+</BODY>
+</HTML>

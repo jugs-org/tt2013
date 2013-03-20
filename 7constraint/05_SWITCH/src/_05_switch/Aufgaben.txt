@@ -1,0 +1,122 @@
+2 switch Aufgaben
+=================
+
+Sichere Switches erlauben im Gegenstatz zu den Konvertierungss-Methoden zu allgemeineren Constraints
+die Spezialisierung von Constraints.
+
+Dies ist notwendig, wenn eine Fassaden-Methode mit einem allgemeineren Constraint-Parameter aufgerufen wird
+und in dieser Methode mit einem Switch oder einer if-else-Kaskade zu verschiedenen spezielleren Methoden
+verzweigt wurde.
+
+Der sichere Switch in diesem Constraint-Code-Generator wird als abstrakte innere nicht-statische Klasse generiert.
+
+Die Generierung einer abstrakten Klasse sichert die Implementierung jedes Zweiges des Switches ab,
+was in Java bei einem Switch oder einer if-else-Kaskade nicht per Compilerprüfung abgesichert werden kann.
+
+Allgemein
+---------
+
+Im Package
+
+    _05_switch.enums
+
+befinden sich die Klassen
+
+    Ebene
+    Region
+    Rolle
+
+welche die Hierarchie einer Organisation abbilden
+
+              |
+Ebene         |
+              |
+--------------+---------------------------------------------
+              |
+Zentrale      |                     Zentrale
+              |                        |
+              |           +--------+---+---+-------+
+              |           |        |       |       |
+Niederlassung |          Nord     Sued    West    Ost
+              |           |        |       |       |
+              |      +----+-----+  ...     ...     ...
+              |      |    |     |
+Filiale       |      1    2     3
+              |
+
+Je Ebene und Region(Nord, Sued, Ost, West) besteht die Berechtigung
+zum Aufruf einer bestimmten Operation(Java-Methode).
+
+
+1. Aufgabe (Anlegen der Switch-Definition)
+------------------------------------------
+
+Ergänzen Sie in der Klasse
+
+  _05_switch.SwitchConstraintCodeGenerator
+
+für das vorhandene Constraint
+
+    or(
+            new RolleEbeneZentrale() ,
+            new RolleEbeneNiederlassung() ,
+            new RolleEbeneFiliale() ) ,
+
+
+die fehlende Switch-Definition für unterschiedliche Ebenen Benutzer:
+
+    add(
+            or(
+                    new RolleEbeneZentrale() ,
+                    new RolleEbeneNiederlassung() ,
+                    new RolleEbeneFiliale() ) ,
+            switchDef( 
+                    "Ebene" , 
+                    //caseMethodReturnTypeName
+                    "void" ,
+                    //caseMethodExceptionsStr
+                    null ,
+                    //switchPredicateArr
+                    new RolleEbeneZentrale() ,
+                    new RolleEbeneNiederlassung() ,
+                    new RolleEbeneFiliale() ) );
+
+Ein weiteres vorgefertigtes Constraint für Regionen der Benutzer
+soll ebenfalls mit einem Switch ausgestattet werden.
+
+
+2. Aufgabe (Generieren der Switches)
+------------------------------------
+
+Starten Sie die Genrierung der Constraint-Code-Generator-Klasse
+
+    _05_switch.SwitchConstraintCodeGenerator
+
+Benutzen Sie die generierten abstrakten Switch-Klassen
+in der vorgefertigten Klasse
+
+    _05_switch.use.SwitchConstraintUse
+
+
+5. Zusatz-Aufgaben (not, xor, Unit-Tests)
+----------------------------------------
+
+Es gibt ausser den bereits verwendeten Und- und Oder-Verknüpfungen
+noch not und xor.
+
+Legen Sie dafür Constraints in der Klasse
+
+    _05_switch.SwitchConstraintCodeGenerator
+
+an.
+
+Definieren Sie weitere Switch-Definitionen und Kontrollieren Sie die generierten abstrakten Switch-Klassen.
+
+
+Verwenden Sie diese Constraints mit den Switches in
+
+    _05_switch.use.SwitchConstraintUse
+
+
+
+Legen Sie Unit-Tests für die generierten Klassen an.

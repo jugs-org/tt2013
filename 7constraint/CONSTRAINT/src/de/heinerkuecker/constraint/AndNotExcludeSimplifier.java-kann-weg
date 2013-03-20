@@ -1,0 +1,254 @@
+package de.heinerkuecker.constraint;
+
+import java.util.HashSet;
+import java.util.List;
+
+import de.heinerkuecker.constraint.util.coll.FirstInsertOrderHashset;
+import de.heinerkuecker.constraint.util.coll.ReadOnlySet;
+
+/**
+ * Diese Klasse vereinfacht
+ * Constraint-Expressions
+ * anhand von Excludes
+ * {@link Exclude},
+ * wenn in einem And
+ * {@link And}, ein excludiertes
+ * Prädikat in Kombination
+ * mit einem oder mehreren
+ * negierten excludierten
+ * Prädikaten auftaucht.
+ * <pre>
+ * angenommen, es gäbe folgende excludierte Prädikate: 
+ * A, B, C
+ * 
+ * folgende Expression:
+ * 
+ * A and not( B )
+ * 
+ * kann vereinfacht werden zu:
+ * 
+ * A
+ * 
+ * weil sich A und B ausschliessen und nur A zur Erfüllung der Expression notwendig ist.
+ * 
+ * 
+ * folgende Expression:
+ * 
+ * A and not( B or C )
+ * 
+ * kann vereinfacht werden zu:
+ * 
+ * A
+ * 
+ * weil sich A, B und C ausschliessen und nur A zur Erfüllung der Expression notwendig ist.
+ * 
+ * </pre>
+ * 
+ * @author Heiner K&uuml;cker
+ */
+public final class AndNotExcludeSimplifier
+{
+    /**
+     * Methode zum Vereinfachen der übergebenen Constraint-Expression.
+     * 
+     * @param exclude
+     * @param andPredicateToSimplify
+     * @return
+     */
+    public static <CT> Predicate<CT> simplify(
+            //final Exclude<CT> exclude ,
+            final ConstraintCodeGeneratorCache<CT> cache ,
+            final And<CT> andPredicateToSimplify )
+    {
+        final FirstInsertOrderHashset<PrimitivPredicate<CT>> excludePrimitivPredicateSet =
+                collectExcludePrimitivPredicates(
+                        cache.exclude , 
+                        andPredicateToSimplify );
+
+        final FirstInsertOrderHashset<Not<CT>> excludeableNotPredicateSet = 
+                collectExcludeableNotPredicates(
+                        cache.exclude , 
+                        andPredicateToSimplify , 
+                        excludePrimitivPredicateSet );
+
+        final List<Predicate<CT>> andSubPredicateList =
+                IteratorUtil.toList(
+                        andPredicateToSimplify );
+        
+        andSubPredicateList.removeAll( excludeableNotPredicateSet );
+        
+        return
+                And.instanceOf( 
+                        andPredicateToSimplify.lineNr , 
+                        //exclude , 
+                        cache ,
+                        //cleanForImplicits
+                        //true ,
+                        andSubPredicateList.toArray( new Predicate[ andSubPredicateList.size() ] ) );
+    }
+
+    /**
+     * Diese Methode sammelt die primitiven Sub-Prädikate des
+     * übergebenen And-Prädikates, welche in einem Exclude
+     * enthalten sind und damit Kandidaten zum Verdrängen
+     * negierter excludierter Prädikate sind.
+     * 
+     * @param exclude
+     * @param andPredicateToSimplify
+     * @return
+     */
+    private static <CT> FirstInsertOrderHashset<PrimitivPredicate<CT>> collectExcludePrimitivPredicates( 
+            final Exclude<CT> exclude ,
+            final And<CT> andPredicateToSimplify )
+    {
+        final FirstInsertOrderHashset<PrimitivPredicate<CT>> excludeablePrimitivPredicateSet =
+                new FirstInsertOrderHashset<PrimitivPredicate<CT>>();
+
+        for ( Predicate<CT> andSubPredicate : andPredicateToSimplify )
+        {
+            if ( andSubPredicate.isPrimitive() &&
+                    exclude.contains( (PrimitivPredicate<CT>) andSubPredicate ) )
+            {
+                excludeablePrimitivPredicateSet.add( (PrimitivPredicate<CT>) andSubPredicate );
+            }
+            else if ( andSubPredicate instanceof Or )
+                // wenn es sich um ein Or handelt, alle includierten Prädikate einsammeln, die für alle im Or enthaltenen primitiven Prädikate gelten
+                // TODO später auch And-Prädikate im Or beachten
+                // Testfall: ((R2 or RL2 or A2 or AL2 or J2 or JL2) and not((EbeneBe or EbeneZe)))
+            {
+                excludeablePrimitivPredicateSet.addAll(
+                        ( (Or<CT>) andSubPredicate ).collectIncludePredicatesForAllSubPredicates() );
+            }
+        }
+        
+        return excludeablePrimitivPredicateSet;
+    }
+
+    /**
+     * Diese Methode sammelt Not-Prädikate, welche durch im übergebenen
+     * And-Prädikat enthaltene excludierte Primitiv-Prädikate verdrängt
+     * werden können.
+     * 
+     * @param exclude
+     * @param andPredicateToSimplify
+     * @param excludePrimitivPredicateSet
+     * @return
+     */
+    private static <CT> FirstInsertOrderHashset<Not<CT>> collectExcludeableNotPredicates(
+            final Exclude<CT> exclude , 
+            final And<CT> andPredicateToSimplify ,
+            final FirstInsertOrderHashset<PrimitivPredicate<CT>> excludePrimitivPredicateSet )
+    {
+        final FirstInsertOrderHashset<Not<CT>> removeableNotPredicateSet =
+                new FirstInsertOrderHashset<Not<CT>>();
+                
+        for ( final PrimitivPredicate<CT> excludePrimitivPredicate : excludePrimitivPredicateSet )
+        {
+            final ReadOnlySet<ExcludeGroup<CT>> excludeGroupSet =
+                    exclude.getExcludeGroupSet( 
+                            excludePrimitivPredicate );
+
+            for ( final ExcludeGroup<CT> excludeGroup : excludeGroupSet )
+            {
+                for ( final Predicate<CT> andSubPredicate : andPredicateToSimplify )
+                {
+                    if ( andSubPredicate instanceof Not )
+                    {
+                        final Not<CT> notPredicate = (Not<CT>) andSubPredicate;
+
+                        if ( notPredicate.get().isPrimitive() )
+                        {
+                            if ( excludeGroup.contains(
+                                    (PrimitivPredicate<CT>) notPredicate.get() ) )
+                            {
+                                removeableNotPredicateSet.add( notPredicate );
+                            }
+                            else if ( containsExcludegroupMinOneIncludePredicate(
+                                        excludeGroup ,
+                                        ( (PrimitivPredicate<CT>) notPredicate.get() ).includePredicateSet ) )
+                            {
+                                removeableNotPredicateSet.add( notPredicate );
+                            }
+                        }
+                        else if ( notPredicate.get() instanceof Or )
+                        {
+                            final Or<CT> orPredicate = (Or<CT>) notPredicate.get();
+
+                            if ( excludeGroup.containsAll(
+                                    IteratorUtil.toList(
+                                            orPredicate ) ) )
+                            {
+                                removeableNotPredicateSet.add( notPredicate );
+                            }
+                            else if ( containsExcludegroupFromAllOrSubPredicatesMinOneIncludePredicate(
+                                        excludeGroup ,
+                                        orPredicate ) )
+                            {
+                                removeableNotPredicateSet.add( notPredicate );
+                            }
+                            {
+                                removeableNotPredicateSet.add( notPredicate );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return removeableNotPredicateSet;
+    }
+    
+    /**
+     * 
+     * @param excludeGroup
+     * @param includePredicateSet
+     * @return
+     */
+    private static <CT> boolean containsExcludegroupMinOneIncludePredicate(
+            final ExcludeGroup<CT> excludeGroup ,
+            final HashSet<? extends PrimitivPredicate<CT>> includePredicateSet )
+    {
+        if ( includePredicateSet == null )
+        {
+            return false;
+        }
+        
+        for ( final PrimitivPredicate<CT> includePredicate : includePredicateSet )
+        {
+            if ( excludeGroup.contains( includePredicate ) ||
+                    // rekursiver Aufruf für eventuell weitere includierte Prädikate
+                    containsExcludegroupMinOneIncludePredicate(
+                            excludeGroup ,
+                            includePredicate.includePredicateSet ) )
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * 
+     * @param excludeGroup
+     * @param orPredicate
+     * @return
+     */
+    private static <CT> boolean containsExcludegroupFromAllOrSubPredicatesMinOneIncludePredicate(
+            final ExcludeGroup<CT> excludeGroup ,
+            final Or<CT> orPredicate )
+    {
+        for ( final Predicate<CT> orSubPredicate : orPredicate )
+        {
+            if ( ( false == ( orSubPredicate instanceof PrimitivPredicate ) ) ||
+                    false == containsExcludegroupMinOneIncludePredicate( 
+                            excludeGroup , 
+                            ( (PrimitivPredicate<CT>) orSubPredicate ).includePredicateSet ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+}

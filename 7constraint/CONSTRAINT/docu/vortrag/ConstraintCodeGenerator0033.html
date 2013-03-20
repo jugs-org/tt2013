@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Unsicherer Bereich und sicherer Bereich</h2>
+Prüfung der Prädikate im Konstruktor
+der generierten Constraint-Klasse
+
+Werfen Exception bei Verletzung eines Prädikats
+
+<font color="blue">/**
+ * Constructor.
+ *
+ * @param contextObj current context object
+ * @throws IllegalArgumentException if constraint violated
+ */</font>
+public ORB_Z_R_OREConstraint(
+        final ExamplContextObj contextObj ) {
+
+    if ( ! ( <font color="green">new Z().test( contextObj )</font> ||
+                <font color="green">new R().test( contextObj )</font> ) ) {
+        throw new <font color="red">IllegalArgumentException</font>(
+                <font color="red">"constraint violation: "</font> +
+                ... );
+    }
+    this.contextObj = contextObj;
+}
+
+In der Applikation muss die Schnittlinie zwischen
+sicherem Bereich und unsicherem Bereich festgelegt
+werden
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0034.html">weiter</A>
+</BODY>
+</HTML>

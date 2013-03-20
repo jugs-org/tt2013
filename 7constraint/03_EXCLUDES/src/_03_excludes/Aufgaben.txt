@@ -1,0 +1,223 @@
+3 excludes Aufgaben
+===================
+
+Excludierte Prädikate ermöglichen eine kompaktere Notation von Constraint-Expressions.
+
+Excludes (sich ausschliessende Prädikate) geben dem Code-Generator ein Kontextwissen, 
+welches nicht explizit in den Constraint-Expressions angegeben werden muss:
+
+Exlude:
+    A
+    B
+        
+Constraint:
+    (A or B)
+
+wird aufgrund Kontextwissen:
+    (A xor B)
+
+
+Allgemein
+---------
+
+Im Package
+
+    _03_excludes.enums
+
+befinden sich die Klassen
+
+    Ebene
+    Region
+    Rolle
+
+welche die Hierarchie einer Organisation abbilden
+
+              |
+Ebene         |
+              |
+--------------+---------------------------------------------
+              |
+Zentrale      |                     Zentrale
+              |                        |
+              |           +--------+---+---+-------+
+              |           |        |       |       |
+Niederlassung |          Nord     Sued    West    Ost
+              |           |        |       |       |
+              |      +----+-----+  ...     ...     ...
+              |      |    |     |
+Filiale       |      1    2     3
+              |
+
+Je Ebene und Region(Nord, Sued, Ost, West) besteht die Berechtigung
+zum Aufruf einer bestimmten Operation(Java-Methode).
+
+
+1. Aufgabe (Anlegen von Excludes)
+---------------------------------
+
+Ergänzen Sie in der Klasse
+
+  _03_excludes.ExcludesConstraintCodeGenerator
+
+für das vorhandene Exclude-Objekt die fehlenden ExcludeGroups
+für sich ausschliessende Ebenen und Regionen der Benutzer:
+
+    new Exclude<Rolle>(
+            new ExcludeGroup<Rolle>(
+                    "Ebene" ,
+                    //isClosedWorldAssumption
+                    true ,
+                    new RolleEbeneZentrale() ,
+                    new RolleEbeneNiederlassung() ,
+                    new RolleEbeneFiliale() ) ,
+            new ExcludeGroup<Rolle>(
+                    "Region" ,
+                    //isClosedWorldAssumption
+                    true ,
+                    new RolleRegionNord() ,
+                    new RolleRegionSued() ,
+                    new RolleRegionWest() ,
+                    new RolleRegionOst() ) );
+
+
+2. Aufgabe (Konvertierung zum includierten Prädikat (einfache Implikation))
+---------------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _03_excludes.ExcludesConstraintCodeGenerator
+
+ein Constraint
+
+    new RolleZentrale()
+
+und ein Constraint
+
+    new RolleEbeneZentrale()
+
+an.
+
+Kontrollieren Sie in den generierten Klassen
+
+    RolleZentraleConstraint
+    RolleEbeneZentraleConstraint
+
+ob die Konvertierungs-Methode zum oben genannten 
+Constraint generiert wurde.
+
+
+3. Aufgabe (Konvertierung zum includierten Prädikat (einfache Implikation))
+---------------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _03_excludes.ExcludesConstraintCodeGenerator
+
+ein Constraint
+
+    new RolleNiederlassungNord()
+
+und folgende Constraints für die includierten Prädikate
+
+    new RolleNiederlassung()
+    new RolleEbeneNiederlassung()
+    new RolleRegionNord()
+
+an.
+
+Kontrollieren Sie in den generierten Klasse
+
+    RolleNiederlassungNordConstraint
+
+ob die Konvertierungs-Methode zu den Constraints
+mit den includierten Prädikaten generiert wurden.
+
+
+4. Aufgabe (Benutzung Constraints mit Kompatibilität über Konvertierungs-Methode)
+---------------------------------------------------------------------------------
+
+Legen Sie in der Klasse
+
+    _03_excludes.use.ExcludesConstraintUse
+
+Methoden mit verschiedenen Constraint-Parametern an:
+
+    public static void doRolleNiederlassungNord(
+            final RolleNiederlassungNordConstraint constraint )
+
+    public static void doRolleNiederlassung(
+            final RolleNiederlassungConstraint constraint )
+
+    public static void doRolleEbeneNiederlassung(
+            final RolleEbeneNiederlassungConstraint constraint )
+
+    public static void doRolleRegionNord(
+            final RolleRegionNordConstraint constraint )
+
+
+Rufen Sie Methoden mit kompatiblen Constraints auf, 
+indem Sie die vorhandenen Constraints über die 
+Konvertierungs-Methoden umwandeln.
+
+
+
+5. Aufgabe (Benutzung Constraints mit Kompatibilität über Konvertierungs-Methode mit closed world assumption)
+-------------------------------------------------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _03_excludes.ExcludesConstraintCodeGenerator
+
+die Constraints
+
+            add(
+                    or(
+                            new RolleEbeneZentrale() ,
+                            new RolleEbeneNiederlassung() ) );
+
+            add(
+                    not(
+                            new RolleEbeneFiliale() ) );
+
+an.
+
+
+Legen Sie in der Klasse
+
+    _03_excludes.use.ExcludesConstraintUse
+
+Methoden mit verschiedenen Constraint-Parametern an:
+
+    public static void doNOT_RolleEbeneFiliale(
+            final NOT_RolleEbeneFiliale constraint )
+
+    public static void doORB_RolleEbeneZentrale_RolleEbeneNiederlassung_ORE(
+            final ORB_RolleEbeneZentrale_RolleEbeneNiederlassung_ORE constraint )
+
+Rufen Sie Methoden mit kompatiblen Constraints auf, 
+indem Sie die vorhandenen Constraints über die 
+Konvertierungs-Methoden umwandeln.
+
+
+6. Zusatz-Aufgaben (not, xor, Unit-Tests)
+----------------------------------------
+
+Es gibt ausser den bereits verwendeten Und- und Oder-Verknüpfungen
+noch not und xor.
+
+Legen Sie dafür Constraints in der Klasse
+
+    _03_excludes.ExcludesConstraintCodeGenerator
+
+an.
+
+Kontrollieren Sie die generierten Konvertierungs-Methoden.
+
+
+Verwenden Sie diese Constraints in
+
+    _03_excludes.use.ExcludesConstraintUse
+
+
+
+Legen Sie Unit-Tests für die generierten Klassen an.

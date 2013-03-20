@@ -1,0 +1,109 @@
+14_TRANSFORM_SAFEOPERATION_TIC_TAC_TOE Aufgaben
+===============================================
+
+Dieses Beispiel zeigt die Möglichkeit sichere Operationen
+zum Erzwingen der korrekten API-Benutzung zu verwenden.
+
+Angeregt wurde dieses Beispiel von Patrick Roemer 
+auf der Usenet-Newsgroup de.comp.lang.java.
+
+Vorlage ist das Scala-Beispiel
+"Tic-Tac-Toe API with phantom types"
+http://blog.vasilrem.com/tic-tac-toe-api-with-phantom-types
+
+Über das Spiel Tic tac Toe können Sie sich
+auf der Wikipedia-Seite
+
+    http://de.wikipedia.org/wiki/Tic_Tac_Toe
+
+informieren.
+
+In der Scala-Vorlage werden neben den Zügen
+(SetCell, Setzen der Zellen des Spielfeldes) noch
+Operationen zum Aussetzen eines Spielers
+(TakeMoveBack) verwendet.
+
+
+Allgemein
+---------
+
+In der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _14_transform_safeoperation_tic_tac_toe.TransformSafeOperationTicTacToeConstraintCodeGenerator
+
+ist ein Constraint für Int-Wertebereich vordefiniert.
+
+Die generierten Constraints werden im JUnit-Test
+
+    _14_transform_safeoperation_tic_tac_toe.test.TransformSafeOperationTicTacToeConstraintCodeGeneratorTest
+
+benutzt.
+
+
+3. Aufgabe (Implementieren der transform-Methode an den beteiligten Prädikaten)
+-------------------------------------------------------------------------------
+
+Ergänzen Sie in den beteiligten Prädikaten
+
+    C (Cell)
+    G (Gamer)
+
+jeweils die transform-Methode.
+
+
+2. Aufgabe (Festlegen der sicheren Operationen an den Constraints)
+------------------------------------------------------------------
+
+Ergänzen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _14_transform_safeoperation_tic_tac_toe.TransformSafeOperationTicTacToeConstraintCodeGenerator
+
+für das vorhandenenen Constraints die fehlenden sicheren Operationen:
+
+    SetCell
+    TakeMoveBack
+
+entsprechend den im JUnit-Test
+
+    _14_transform_safeoperation_tic_tac_toe.test.TransformSafeOperationTicTacToeConstraintCodeGeneratorTest
+
+aufgerufenen Zügen.
+
+
+3. Aufgabe (Generieren der Constraints mit den sicheren Operationen)
+--------------------------------------------------------------------
+
+Starten Sie die Generierung der Constraint-Code-Generator-Klasse
+
+    _14_transform_safeoperation_tic_tac_toe.TransformSafeOperationTicTacToeConstraintCodeGenerator
+
+Benutzen Sie die generierten sicheren Operationen in der vorgefertigten
+JUnit4-Testcase-Klasse
+
+    _14_transform_safeoperation_tic_tac_toe.test.TransformSafeOperationTicTacToeConstraintCodeGeneratorTest
+
+
+4. Aufgabe (Prüfen Sie die generierten Constraints mit einem Unit-Test)
+-----------------------------------------------------------------------
+
+Ergänzen Sie die Tests in der vorgefertigten Test-Klasse
+
+    _14_transform_safeoperation_tic_tac_toe.test.TransformSafeOperationTicTacToeConstraintCodeGeneratorTest
+
+
+5. Zusatz-Aufgaben (weitere sichere Operationen und Unit-Tests)
+---------------------------------------------------------------
+
+Probieren Sie andere Züge (Zell-Setzungen).
+
+Ergänzen Sie in der generator-Klasse die entpserechenden
+sicheren Operationen und Spielstellungen.
+
+
+Überlegen Sie sich aus Ihrem aktuellen Projekt-Umfeld
+weitere sichere Operationen mit fachlichem Hintergrund
+(das Tic-tac-Toe-Beispiel soll das Prinzip im wesentlichen
+demonstrieren, ist aber nicht sinvoll nutzbar).
+
+Versuchen Sie eine solche fachlich motivierte
+sichere Operation zu realisieren.

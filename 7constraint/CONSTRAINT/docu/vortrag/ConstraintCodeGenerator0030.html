@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+Konvertierung zur Sub-Menge, zur spezielleren Expression
+
+generierte innere abstrakte Switch-Klasse
+
+Problem Formulierung
+
+ursprüngliche Constraint-Expression:
+    ((<font color="blue">Z</font> or <font color="blue">R</font>) and (<font color="blue">SCHREIB</font> or <font color="blue">LESE</font>))
+
+<font color="grey">//Spezialisierung (X)OR durch bereits vorhandene Prädikate 4 Fälle</font>
+Switch( "ZentraleXorRegioAndSchreibXorLese" ,
+    (<font color="green">Z</font> and <font color="green">SCHREIB</font>) , // (    <font color="blue">Z</font> and not(<font color="red">R</font>))and(    <font color="blue">SCHREIB</font> and not(<font color="red">LESE</font>))
+    (<font color="green">Z</font> and <font color="green">LESE</font>)    , // (    <font color="blue">Z</font> and not(<font color="red">R</font>))and(not(<font color="red">SCHREIB</font>)and     <font color="blue">LESE</font> )
+    (<font color="green">R</font> and <font color="green">SCHREIB</font>) , // (not(<font color="red">Z</font>)and     <font color="blue">R</font> )and(    <font color="blue">SCHREIB</font> and not(<font color="red">LESE</font>))
+    (<font color="green">R</font> and <font color="green">LESE</font>)    ) // (not(<font color="red">Z</font>)and     <font color="blue">R</font> )and(not(<font color="red">SCHREIB</font>)and     <font color="blue">LESE</font> )
+
+
+Überprüfung, ob die erfüllten Sub-Expressions
+gültige Sub-Expressions der ursprünglichen
+Expression sind
+
+Ausprägungs-Mengen müssen disjunkt (nicht überlappend)
+sein, sonst wird der zufällig zuerst generierte
+Zweig durchlaufen (Fehler).
+
+Möglichkeiten:
+Code-Generator kennt sich ausschliessende
+Prädikate (Excludes)
+sowie
+NOT (ein Prädikat ja vs. nein)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0031.html">weiter</A>
+</BODY>
+</HTML>

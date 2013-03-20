@@ -1,0 +1,48 @@
+Beispiele
+---------
+
+Bisher erwähnt
+  IntRangeConstraintCodegenerator
+  StrLenConstraintCodegenerator
+
+TODO
+  SafeMember
+  FizzBuzzConstraintCodegenerator
+  Suche All None In
+  Zustandsautomat/Workflow/Business Process
+  Integer-Wertebereich
+  Postconditions (SafeOperations)
+  Klassen-Invarianten
+  Schleifen-Invarianten
+  Visitor, Multimethoden
+
+
+Historie und Ausblick
+---------------------
+
+TODO: trinäre Logik
+
+TODO: SafeMember und SafeOperation asymmetrisch
+
+TODO: Constraints über Constraints
+  Zustandsautomat ohne Sackgasse oder unerreichbaren Status
+  Rückgängig-machen-Operation: nur erlaubt, wenn die rückgängig-zu-machende-Operation für Benutzer (Rolle) erlaubt war
+
+TODO: Tooling
+  Definition der Constraints in qualifizierten Kommmentaren
+  Generieren der Constraint-Java-Klassen in einen verborgenen Ordner
+
+
+Links
+-----
+
+Unboxed union types in Scala via the Curry-Howard isomorphism: http://www.chuusai.com/2011/06/09/scala-union-types-curry-howard/
+  Anwendung logischer Verknüpfungen auf Scala-Typen
+
+Blog-Eintrag How Scala's type system works for your Domain Model: http://debasishg.blogspot.de/2008/10/how-scalas-type-system-works-for-your.html
+
+O'Reilly Open Feedback Publishing System: The Scala Type System: http://ofps.oreilly.com/titles/9780596155957/ScalasTypeSystem.html
+  evtl nicht in den Links mit angeben
+
+Apocalisp Type-Level Programming in Scala, Part 3: Boolean: http://apocalisp.wordpress.com/2010/06/13/type-level-programming-in-scala-part-3-boolean/
+

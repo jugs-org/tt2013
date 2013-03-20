@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+<h2>Einbindung in eine Web-Applikation</h2>
+Menü-Punkte verweisen auf Pages oder Actions.
+
+Renderer des Menü-Systems kann Constraint-
+Einhaltung von Pages und Actions 
+(Ziele der jeweiligen Menü-Punkte) ohne
+Exception prüfen und anhand dessen
+Menü-Punkte aktivieren/sperren.
+
+Im Projekt gibt es Single-Sign-On
+Übergabe Rolle und Abteilung(Dienststelle) des Benutzers
+(also nicht im Scope dieses Vortrages, demzufolge
+ Constraints erledigt, alles bezüglich Sicherheit
+ erledigt)
+
+Aufruf nicht erlaubter Actions/Pages kann
+eigentlich nur über manipulierte URLs, Bookmarks,
+zugesendete Links (per E-Mail) oder die Zeit
+(Status auf Bildschirm entspricht nicht mehr 
+Status im Backend) passieren
+
+In einer Web-App (ohne AJAX) entspricht eigentlich
+jeder Bildschirm der Vergangenheit.
+Nach dem Bildschirmaufbau (Ende der Transaktion)
+könnte ein anderer Benutzer die Daten ändern.
+
+Konsistenz der Datenbank bedeutet nicht Konsistenz
+der Applikation, ist aber schon sehr viel wert.
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0061.html">weiter</A>
+</BODY>
+</HTML>

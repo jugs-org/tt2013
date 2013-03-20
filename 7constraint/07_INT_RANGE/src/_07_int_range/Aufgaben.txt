@@ -1,0 +1,177 @@
+07 Int Range Aufgaben
+=====================
+
+Das Int-Range-Beispiel soll zeigen,
+dass es möglich ist, mit dem
+Constraint-Code-Generator Werte-Bereiche
+abzusichern.
+
+Allgemein
+---------
+
+Ein Constraint soll den Wertebereich einer
+int-Zahl zwischen -10 und 10 (ausschliessend)
+absichern:
+
+x > -10 and x < 10
+
+Im weiteren Code der Anwendung wird dieser
+abgesicherte Wert in einem sicheren Switch
+je nach Wert kleiner Null, gleich Null und
+grösser Null unterschiedlich behandelt:
+
+Switch:
+  Case  x < 0
+  Case  x == 0
+  Case  X > 0
+
+1. Aufgabe (Anlegen des Range-Check-Constraints)
+------------------------------------------------
+
+Zur Umsetzung der Aufgabe werden parametrisierbare
+Prädikate benötigt.
+
+Diese besitzen eine im Konstruktor gesetzte
+unveränderliche Member mit dem konkret in der
+Prädikat-Instanz anzuwendendem Wert.
+
+legen Sie die Prädikate für die Bedingungen
+
+    x > -10
+    x <  10
+
+an.
+
+    IntGreater
+    IntLesser
+    
+Legen Sie in der Constraint-Code-Generator-Java-Klasse
+
+    _07_int_range.IntRangeConstraintCodeGenerator
+
+die Defintion für oben genanntes Constraint an.
+
+
+2. Aufgabe (Anlegen der dynamischen Includes)
+---------------------------------------------
+
+Dynamische Includes dienen dazu, dem Code-Generator
+mitzuteilen, dass wenn das Prädikat
+
+    IntGreater( 0 ) // x > 0
+
+erfüllt ist, das Prädikat
+
+    IntGreater( -10 ) // x > -10
+
+ebenfalls immer erfüllt ist.
+
+
+In den parametrisierbaren Prädikaten muss
+dafür die Methode
+
+    isCompatibleTo
+
+korrekt implementiert werden.
+
+
+3. Aufgabe (Anlegen der dynamischen Excludes)
+---------------------------------------------
+
+Dynamische Excludes dienen dazu, dem Code-Generator
+mitzuteilen, dass wenn das Prädikat
+
+    IntGreater( 0 ) // x > 0
+
+erfüllt ist, das Prädikat
+
+    IntLesser( 0 ) // x < 0
+
+niemals erfüllt ist.
+
+
+In den parametrisierbaren Prädikaten muss
+dafür die Methode
+
+    isExcludeTo
+
+korrekt implementiert werden.
+
+
+4. Aufgabe (Anlegen der Switch-Definition)
+------------------------------------------
+
+Legen Sie die Switch-Definition für oben
+beschriebenen (Allgemein) Switch in der
+Klasse
+
+    _07_int_range.IntRangeConstraintCodeGenerator
+
+an:
+
+    switchDef( 
+            "LesserZeroEqualZeroGreaterZero" , 
+            //caseMethodReturnTypeName
+            "void" ,
+            //caseMethodExceptionsStr
+            null ,
+            //switchPredicateArr
+            new IntLesser ( 0 ) , // x  < 0
+            new IntEqual  ( 0 ) , // x == 0
+            new IntGreater( 0 )   // x  > 0
+            ) );
+
+
+5. Aufgabe (Erzeugen eines Default-Zweiges statt vollständiger Zweig-Abdeckung
+------------------------------------------------------------------------------
+
+Im oberen Teil der Klasse
+
+    _07_int_range.IntRangeConstraintCodeGenerator
+
+ist ein Exclude definiert.
+
+Dieses Exclude ist nur notwendig, um dem 
+Code-Generator mitzuteilen, dass kein
+Null-Int-Wert erlaubt ist
+(isClosedWorldAssumption == true).
+
+Ohne diese Angabe wird in der generierten
+abstrakten ein Default-Zweig generiert.
+
+Probieren Sie das aus.
+
+
+Durch Auskommentieren eines Switch-Case-Zweiges
+kann ebenfalls das Generieren eines Default-Zweiges
+erzwungen werden.
+
+
+5. Aufgabe (Verändern der Werte des ursprünglichen Constraints und des Switches)
+--------------------------------------------------------------------------------
+
+Probieren Sie unterschiedliche Werte in der
+Constraint-Definition und im Switch aus.
+
+
+6. Aufgabe (Verwenden des generierten Codes)
+--------------------------------------------
+
+Legen Sie in der Klasse
+
+    _07_int_range.use.IntRangeConstraintUse
+
+Code zum Benutzen der generierten
+Constraints mit Switches an.
+
+
+7. Aufgabe (Anlegen eines JUnit-Tests für das ursprüngliche Constraint und den Switch)
+--------------------------------------------------------------------------------------
+
+Legen Sie in
+
+    _07_int_range.test.IntRangeConstraintCodeGeneratorTest
+
+Test für das Ablehnen nicht erfüllbarer Constraints und 
+für den positiven Fall an.
+

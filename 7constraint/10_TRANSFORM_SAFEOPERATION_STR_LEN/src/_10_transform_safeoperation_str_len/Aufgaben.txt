@@ -1,0 +1,103 @@
+10 Transform Safe Operation Str Len Aufgaben
+============================================
+
+Sichere Operationen bilden ein Constraint auf ein anderes ab.
+
+Wenn ein Constraint
+
+x > 0
+
+existiert und dieses um 1 erhöht wird
+
+x + 1
+
+ist das Ergebnis ein neues Constraint
+
+x > 1
+
+Der Code-Generator ermittelt das Ziel-Constraint
+mit Hilfe der zu implementierenden Methoden der
+beteiligten Prädikate, welche das Interface
+
+    de.heinerkuecker.constraint.TransformablePredicate<CT>
+
+implementieren müssen.
+
+Allgemein
+---------
+
+In der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _10_transform_safeoperation_str_len.TransformSafeOperationStrLenConstraintCodeGenerator
+
+sind verschiedene Constraints für Strings vordefiniert.
+
+Die zusätzlichen Prädikate für Strings wie
+
+    StrLastDigit
+    StrFirstUppercaseLetter
+
+dienen dazu, die Anforderungen an die Transformationen
+so zu erhöhen, dass Kompliziertheiten aus realen
+fachlichen Problemen nachgeahmt werden können.
+
+
+1. Aufgabe (Festlegen der sicheren Operationen an den Constraints)
+------------------------------------------------------------------
+
+Ergänzen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _10_transform_safeoperation_str_len.TransformSafeOperationStrLenConstraintCodeGenerator
+
+für die vorhandenen Constraints die fehlenden sicheren Operationen:
+
+    SubstringFromPosToPosSafeOperation
+    AddStrMaxLenSafeOperation
+    AddStrMinLenSafeOperation
+    AddStrMinMaxLenSafeOperation
+
+
+2. Aufgabe (Implementieren der transform-Methode an den beteiligten Prädikaten)
+-------------------------------------------------------------------------------
+
+Ergänzen Sie in den beteiligten Prädikaten
+
+    StrMinLen
+    StrMaxLen
+    StrFirstUppercaseLetter
+    StrLastDigit
+
+jeweils die transform-Methode.
+
+
+3. Aufgabe (Generieren der Constraints mit den sicheren Operationen)
+--------------------------------------------------------------------
+
+Starten Sie die Generierung der Constraint-Code-Generator-Klasse
+
+    _10_transform_safeoperation_str_len.TransformSafeOperationStrLenConstraintCodeGenerator
+
+Benutzen Sie die generierten sicheren Operationen in der vorgefertigten
+JUnit4-Testcase-Klasse
+
+    _10_transform_safeoperation_str_len.test.TransformSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+4. Aufgabe (Prüfen Sie die generierten Constraints mit einem Unit-Test)
+-----------------------------------------------------------------------
+
+Ergänzen Sie die Tests in der vorgefertigten Test-Klasse
+
+    _10_transform_safeoperation_str_len.test.TransformSafeOperationStrLenConstraintCodeGeneratorTest
+
+
+3. Zusatz-Aufgaben (weitere sichere Operationen und Unit-Tests)
+---------------------------------------------------------------
+
+Überlegen Sie sich aus Ihrem aktuellen Projekt-Umfeld
+weitere sichere Operationen mit fachlichem Hintergrund
+(die Substring-Beispiele sollen das Prinzip im wesentlichen
+demonstrieren, sind aber bereits sinvoll nutzbar).
+
+Versuchen Sie eine solche fachlich motivierte
+sichere Operation zu realisieren.

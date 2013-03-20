@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+Konvertierung zur Sub-Menge (zur spezielleren Expression)
+
+<h2>Eigenverantwortung</h2>
+Prüfung per if
+
+<font color="blue">/**
+ * Prüfe Vertrag Zentrale oder Regionalmanagement.
+ * @param constraint (Z or R)
+ */</font>
+public static void pruefeVertrag(
+        final ORB_Z_R_OREConstraint constraint ) {
+    //<font color="grey">Prüfung Constraint anhand Prädikat Z (Zentrale)</font>
+    if ( <font color="green">new Z().test( constraint.contextObj )</font> ) {
+
+        final ZConstraint <font color="green">zConstraint</font> =
+            new <font color="green">ZConstraint</font>(
+                    constraint.contextObj );
+
+        pruefeVertrag(
+                <font color="green">zConstraint</font> );
+    } else {
+        ...
+    }
+}
+
+<font color="blue">/**
+ * Prüfe Vertrag Zentrale.
+ * @param constraint Z
+ */</font>
+public static void pruefeVertrag(
+        final <font color="green">ZConstraint constraint</font> ) {
+    ...
+}
+
+(Handarbeit, kann jeder machen, aber der Computer
+ sollte dies besser (leichter, sicherer) können)
+
+Problem: vergessenes else (undefinierter Default)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0026.html">weiter</A>
+</BODY>
+</HTML>

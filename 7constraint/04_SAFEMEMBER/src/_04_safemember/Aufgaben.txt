@@ -1,0 +1,159 @@
+4 safemember Aufgaben
+=====================
+
+SafeMember sind Java-Klassen-Member, die aufgrund 
+des umgebenden Constraints nur bestimmte Werte
+annehmen können.
+
+Dadurch wird bei unterschiedlichen Typen ein
+im Anwendungscode erforderlicher unsicherer
+Cast vom Code-Generator erzeugt.
+
+Falls es keine speziellen unterschiedlichen Typen
+der Werte gibt, so kann wenigstens ein aussagekräftiger
+Bezeichner genriert werden.
+
+
+Allgemein
+---------
+
+Im Package
+
+    _04_safemember.enums
+
+befinden sich die Klassen
+
+    Ebene
+    Region
+    Rolle
+
+welche die Hierarchie einer Organisation abbilden
+
+              |
+Ebene         |
+              |
+--------------+---------------------------------------------
+              |
+Zentrale      |                     Zentrale
+              |                        |
+              |           +--------+---+---+-------+
+              |           |        |       |       |
+Niederlassung |          Nord     Sued    West    Ost
+              |           |        |       |       |
+              |      +----+-----+  ...     ...     ...
+              |      |    |     |
+Filiale       |      1    2     3
+              |
+
+Je Ebene und Region(Nord, Sued, Ost, West) besteht die Berechtigung
+zum Aufruf einer bestimmten Operation(Java-Methode).
+
+
+1. Aufgabe (Anlegen von SafeMember)
+-----------------------------------
+
+Ergänzen Sie in der Klasse
+
+  _04_safemember.safemember.RolleSafeMember
+
+die fehlenden SafeMember
+für sich ausschliessende Ebenen und Regionen der Benutzer:
+
+    Rolle-Ebene Zentrale
+    Rolle-Ebene Niederlassung
+    Rolle-Ebene Filiale
+    Rolle-Region Nord
+    Rolle-Region Süd
+    Rolle-Region West
+    Rolle-Region Ost
+
+
+2. Aufgabe (Hinterlegung der SafeMember in den Prädikaten)
+----------------------------------------------------------
+
+Ergänzen Sie im Package
+
+  _04_safemember.predicates.*
+
+die fehlenden SafeMember
+für sich ausschliessende Ebenen und Regionen der Benutzer
+in den Prädikaten:
+
+    RolleEbeneZentrale
+    RolleEbeneNiederlassung
+    RolleEbeneFiliale
+    
+    RolleRegionNord
+    RolleRegionSued
+    RolleRegionWest
+    RolleRegionOst
+
+
+3.Aufgabe (Generierung der Constraints)
+---------------------------------------
+
+Legen Sie in den vorgefertigten Constraint-Code-Generator-Klasse
+
+    _04_safemember.SafeMememberConstraintCodeGenerator
+
+die Constraints
+
+    new RolleEbeneZentrale()
+    new RolleEbeneNiederlassung()
+    new RolleEbeneFiliale()
+    
+    new RolleRegionNord()
+    new RolleRegionSued()
+    new RolleRegionWest()
+    new RolleRegionSued()
+
+an.
+
+Kontrollieren Sie in den generierten Klassen
+ob die Safe-Member zu den oben genannten 
+Constraints generiert wurden.
+
+
+4. Aufgabe (Generierung von SafeMembern von includierten Prädikaten)
+--------------------------------------------------------------------
+
+Legen Sie in der vorgefertigten Constraint-Code-Generator-Klasse
+
+    _04_safemember.SafeMememberConstraintCodeGenerator
+
+ein Constraint
+
+    new RolleNiederlassungNord()
+
+an.
+
+Kontrollieren Sie in den generierten Klasse
+
+    RolleNiederlassungNordConstraint
+
+ob die Safe-Member zu den oben genannten 
+Constraints generiert wurden.
+
+
+5. Zusatz-Aufgaben (not, xor, Unit-Tests)
+----------------------------------------
+
+Es gibt ausser den bereits verwendeten Und- und Oder-Verknüpfungen
+noch not und xor.
+
+Legen Sie dafür Constraints in der Klasse
+
+    _04_safemember.SafeMememberConstraintCodeGenerator
+
+an.
+
+Kontrollieren Sie die generierten Safe-Member.
+
+
+Verwenden Sie diese Constraints in
+
+    _04_safemember.use.SafeMemberConstraintUse
+
+
+
+Legen Sie Unit-Tests für die generierten Klassen an.

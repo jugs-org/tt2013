@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 FINAL//EN">
+<HTML>
+<HEAD>
+<TITLE>Vortrag 'statische Constraintprüfung in Java' Stuttgarter Testtage 22.03.2013</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+</head>
+<BODY>
+<font size="4">
+<u><h1>Constraint-Expression</h1></u>
+<b>
+<pre>
+Konvertierung zur Sub-Menge (zur spezielleren Expression)
+
+<h3>Benutzung der generierten abstrakten inneren Switch-Klasse</h3>
+public static boolean pruefeVertrag(
+        Vertrag vertrag ,
+        <font color="grey">// Zentrale oder Regionalmanagement</font>
+        <font color="blue">ORB_Z_R_OREConstraint</font> constraint ) {
+
+   <font color="grey">// anonyme innere Klasse des übergebenen Constraint</font>
+   return constraint.new <font color="blue">ORB_Z_R_OREConstraint</font>() {
+        @Override
+        protected Boolean caseZ(
+                <font color="grey">// Zentrale</font>
+                <font color="green">ZConstraint zConstraint</font> ) {
+            return pruefeVertrag(
+                    vertrag ,
+                    <font color="green">zConstraint</font> );
+        }
+
+        @Override
+        protected Boolean caseR(
+                <font color="grey">// Regionalmanagement</font>
+                <font color="green">RConstraint rConstraint</font> ) {
+            ...
+        }
+    }.doSwitch();
+}
+
+alle case-Methoden müssen implementiert werden
+
+Lösung: kein vergessenes else (kein undefinierter Default)
+</pre>
+</b>
+</font>
+<A HREF="index.html">Anfang</A> <A HREF="ConstraintCodeGenerator0028.html">weiter</A>
+</BODY>
+</HTML>
